@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('token', function (Blueprint $table) {
+        Schema::create('tokens', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('paid_token');
             $table->timestamp('token_expires_at');
