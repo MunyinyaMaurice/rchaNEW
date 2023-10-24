@@ -67,7 +67,7 @@ Route::delete('/deleteImage/{id}', [imagesController::class, 'deleteImage']);
 Route::get('/getImageById/{id}', [imagesController::class, 'getImageById']);
 
 
-/*  ROUTE FOR PLACE CONTROLLER API*/
+/*  ROUTE FOR PLACE CONTROLLER API*///
 Route::post('/storeNewPlace',[placeController::class,'storePlace'])->name('storeNewPlace');
 Route::get('/places', [placeController::class, 'getPlaces']);
 Route::get('/place/{id}', [placeController::class, 'getPlaceById']);
