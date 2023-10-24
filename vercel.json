@@ -37,10 +37,10 @@
         "CACHE_DRIVER": "file",
         "LOG_CHANNEL": "errorlog",
         "SESSION_DRIVER": "cookie",
-        "DB_HOST": "127.0.0.1",
+        "DB_HOST": "ep-purple-union-36188263-pooler.us-east-1.postgres.vercel-storage.com",
         "DB_DATABASE": "rchadb1",
         "DB_USERNAME": "postgres",
-        "DB_PASSWORD": "4546"
+        "DB_PASSWORD": "UOrh2nwEcp8X"
     },
     "hooks": {
         "build": {
