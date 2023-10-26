@@ -11,7 +11,9 @@
 // );
 // $response->send();
 // $kernel->terminate($request, $response);
-Authorization: Bearer <RdGkIeBde5VtsEKxLVEm09Lk>
+
+//https://vercel.com/account/tokens
+ Authorization: Bearer <RdGkIeBde5VtsEKxLVEm09Lk>
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
