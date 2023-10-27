@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 // use Illuminate\Contracts\Mail\Mailable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -50,7 +51,11 @@ class userAuthController extends Controller
         $user->save();
         if($user){
             $user->sendEmailVerificationNotification();
-       
+
+            event(new Registered($user));
+
+            auth()->login($user);
+
         return response()->json(
             [
                 'message' => 'User is registered successful! and verification link has been sent to your email address',
