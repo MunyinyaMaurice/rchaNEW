@@ -30,6 +30,18 @@ Auth::routes([
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+//only authenticated can access this group
+Route::group(['middleware' => ['auth']], function() {
+    //only verified account can access with this group
+    Route::group(['middleware' => ['verified']], function() {
+            /**
+             * Dashboard Routes
+             */
+            Route::get('/dashboard', 'DashboardController@index')->name('dashboard.index');
+    });
+});
+
 Route::group(['middleware'=>'api','prefix'=>'auth'],function($router){
     Route::post('/login',[userAuthController::class,'login'])->name('login');
     Route::post('/register',[userAuthController::class,'register'])->name('register');
