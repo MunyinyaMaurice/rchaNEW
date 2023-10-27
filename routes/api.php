@@ -39,6 +39,7 @@ Route::group(['middleware'=>'api','prefix'=>'auth'],function($router){
     Route::post('sendPasswordResetLink', 'App\Http\Controllers\PasswordResetRequestController@sendEmail');
    // Route::post('resetPassword', 'App\Http\Controllers\ChangePasswordController@passwordResetProcess');
 
+
    Route::get('verify-email', EmailVerificationPromptController::class)
                 ->name('verification.notice');
 

@@ -43,6 +43,7 @@ return [
         'api' => [
             'driver' => 'jwt',
             'provider' => 'users',
+            'verify' => true,
             'hash'=>false
         ],
     
