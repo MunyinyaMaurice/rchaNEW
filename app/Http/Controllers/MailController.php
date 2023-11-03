@@ -43,16 +43,16 @@ class MailController extends Controller
 //                         return response()->json(['some went wrong']);
 //                     }
                 // }
-                    public function sendEmail() {
-                        $username = config('mail.username');
-                        $password = config('mail.password');
+                    // public function sendEmail() {
+                    //     $username = config('mail.username');
+                    //     $password = config('mail.password');
                     
-                        Mail::send([], [], function($message) {
-                            $message->to('munyinya13@gmail.com')
-                                ->subject('Subject')
-                                ->setBody('Body');
-                        });
-                    }
+                    //     Mail::send([], [], function($message) {
+                    //         $message->to('munyinya13@gmail.com')
+                    //             ->subject('Subject')
+                    //             ->setBody('Body');
+                    //     });
+                    // }
                     
 }
 

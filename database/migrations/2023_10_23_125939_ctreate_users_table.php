@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('country');
             $table->string('city');
             $table->string('role');
+            $table->string('google_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

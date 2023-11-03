@@ -2,68 +2,57 @@
 
 
 //use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Mail\sendFreeToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Route;
 // use App\Http\Controllers\CategoryController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\userAuthController;
-use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\DashboardController;
+// use App\Http\Controllers\Auth\VerifyEmailController;
+// use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\RCHAcontroller\placeController;
+// use Illuminate\Foundation\Auth\EmailVerificationRequest;
+// use App\Http\Controllers\RCHAcontroller\GoogleController;
 use App\Http\Controllers\RCHAcontroller\imagesController;
 use App\Http\Controllers\paymentGatways\flutterController;
+// use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\RCHAcontroller\paymentController;
 use App\Http\Controllers\RCHAcontroller\CategoryController;
 use App\Http\Controllers\RCHAcontroller\feedbackController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\RCHAcontroller\paymentInfoExportController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+// use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 Auth::routes([
     'verify'=>true
 ]);
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 
-//only authenticated can access this group
-Route::group(['middleware' => ['auth']], function() {
-    //only verified account can access with this group
-    Route::group(['middleware' => ['verified']], function() {
-            /**
-             * Dashboard Routes
-             */
-            Route::get('/dashboard', 'DashboardController@index')->name('dashboard.index');
-    });
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    // Add other authenticated routes here...
 });
 
 Route::group(['middleware'=>'api','prefix'=>'auth'],function($router){
+
+    Route::group(['middleware' => ['verified']], function() {
+    Route::put('update-user', [userAuthController::class, 'updateUser']);
+
+    Route::get('/profile',[userAuthController::class,'profile'])->name('profile');
+    });
+
     Route::post('/login',[userAuthController::class,'login'])->name('login');
     Route::post('/register',[userAuthController::class,'register'])->name('register');
-    Route::get('/profile',[userAuthController::class,'profile'])->name('profile');
     Route::post('/logout',[userAuthController::class,'logout'])->name('logout'); 
-    //Route::get('/send',[MailController::class,'index'])->name('send');
+   
     Route::post('sendPasswordResetLink', 'App\Http\Controllers\PasswordResetRequestController@sendEmail');
    // Route::post('resetPassword', 'App\Http\Controllers\ChangePasswordController@passwordResetProcess');
   
 
-   Route::get('verify-email', EmailVerificationPromptController::class)
-                ->name('verification.notice');
-
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-                ->middleware(['signed', 'throttle:6,1'])
-                ->name('verification.verify');
-
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-                ->middleware('throttle:6,1')
-                ->name('verification.send');
-                
-                Route::get('/send-email', [MailController::class,'sendEmail']);
  //==============================================================================               
 
 /** ROUTE ONLY FOR ADMIN  */
@@ -95,8 +84,9 @@ Route::post('/savePaymentinfo',[paymentController::class,'payment']);
 
 Route::get('/processPaidLinks/{id}',[paymentController::class,'processPaidLink']);
 
+/**     GET LIST OF ALL USERS */
 
-
+Route::get('/getAllUser',[userAuthController::class,'getAllUser']);
 Route::get('/calculateTotalAmountPaid',[paymentController::class,'calculateTotalAmountPaid']);
 /** ROUTE FOR CATEGORY */
 // Route::prefix('categories')->group(function () {
@@ -136,6 +126,8 @@ Route::post('/feedback',[feedbackController::class,'feedback']);
 Route::get('/getFeedback/{place_id}',[feedbackController::class,'getFeedback']);
 Route::get('/getAllFeedback',[feedbackController::class,'getAllFeedback']);
 
+
+
 /**ROUTE TO SEND PAID TOKEN EMAIL TO PAID USER */
 Route::post('/sendVideoLinkView', function (Request $request) {
     try {
@@ -166,6 +158,7 @@ Route::post('/sendVideoLinkView', function (Request $request) {
 });
 
 /** SENDING FREE TOKEN TO CUSTOM EMAIL */
+
 Route::post('/sendFreeToken', function (Request $request) {
     $paidToken = $request->input('paidToken');
     $recipientEmail = $request->input('email'); 
@@ -180,13 +173,18 @@ Route::post('/sendFreeToken', function (Request $request) {
 
 });
 
-/**CALLING paymentInfoExportView DOWNLOAD BUTTON */
-// Route::get('downloadPaymentInfoExport',function(){
-//     return view('paymentInfoExportView');
-// });
+
 Route::get('/home',function(){
     return view('home');
 });
+
+// Facebook Login URL
+// Route::prefix('facebook')->name('facebook.')->group( function(){
+//     Route::get('auth', [FaceBookController::class, 'loginUsingFacebook'])->name('login');
+//     Route::get('callback', [FaceBookController::class, 'callbackFromFacebook'])->name('callback');
+// });
+
+
 
 
 });

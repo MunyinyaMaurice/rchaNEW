@@ -23,6 +23,22 @@ class PaymentInfoExport implements FromCollection
     {
     return collect($this->paymentInfo);
     }
+    public function mapArraybleRow($row): array
+{
+    dd($row);
+    return [
+        $row->email,
+        $row->phone_number,
+        $row->first_name,
+        $row->last_name,
+        $row->place_name,
+        $row->place_location,
+        $row->amount,
+        $row->created_at,
+        $row->paid_token
+    ];
+}
+
 public function headings(): array
 {
     return [

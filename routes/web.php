@@ -1,9 +1,20 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Request;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\userAuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\VerificationController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\RCHAcontroller\GoogleController;
+// use App\Http\Controllers\Auth\VerificationController;
+// use App\Http\Controllers\Auth\VerifyEmailController;
+// use App\Http\Controllers\Auth\EmailVerificationPromptController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,18 +27,18 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+// Route::get('/', function () {
+//     return Inertia::render('Welcome', [
+//         'canLogin' => Route::has('login'),
+//         'canRegister' => Route::has('register'),
+//         'laravelVersion' => Application::VERSION,
+//         'phpVersion' => PHP_VERSION,
+//     ]);
+// });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return Inertia::render('Dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -35,8 +46,24 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// ...
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    // Add other authenticated routes here...
+});
+
+
+/**ROUTE TO SEND verification TOKEN EMAIL TO PAID USER */
+Route::get('/verifyUserEmail/{id}', [userAuthController::class, 'verifyUserEmail']);
+
 require __DIR__.'/auth.php';
 
-Auth::routes();
+ Auth::routes();
+ Route::get('/verify-account', [App\Http\Controllers\HomeController::class,'verifyAccount'])->name('verify-account');
+ Route::get('/verifyotp', [App\Http\Controllers\HomeController::class,'userActivation'])->name('verifyotp');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+ // Google URL
+Route::prefix('google')->name('google')->group( function(){
+    Route::get('login', [GoogleController::class, 'loginWithGoogle'])->name('login');
+    Route::any('callback', [GoogleController::class, 'callbackFromGoogle'])->name('callback');
+});

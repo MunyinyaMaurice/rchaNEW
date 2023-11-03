@@ -84,19 +84,36 @@ public function getFeedback($place_id)
         ], 500);
     }
 }
-public function getAllFeedback(){
+public function getAllFeedback(Request $request) {
+    try {
+        $perPage = $request->input('per_page', 10); // Default to 10 items per page
 
-   try{
-    $feedback=Feedback::all();
-    if($feedback)
-        {return $feedback;
+        $feedback = Feedback::paginate($perPage);
+
+        if($feedback->count() > 0) {
+            return $feedback;
         }
-        return response()->json(['message'=>'no records found'],404);
-    }catch(\Exception $e){
-        Log::error($e->getMessage());
-        return response(['message'=> 'An error occurred while fetching AllFeedback.'],500);
 
+        return response()->json(['message'=>'no records found'], 404);
+    } catch(\Exception $e) {
+        Log::error($e->getMessage());
+        return response(['message'=> 'An error occurred while fetching AllFeedback.'], 500);
     }
-    
 }
+
+// public function getAllFeedback(){
+
+//    try{
+//     $feedback=Feedback::all();
+//     if($feedback)
+//         {return $feedback;
+//         }
+//         return response()->json(['message'=>'no records found'],404);
+//     }catch(\Exception $e){
+//         Log::error($e->getMessage());
+//         return response(['message'=> 'An error occurred while fetching AllFeedback.'],500);
+
+//     }
+    
+// }
 }

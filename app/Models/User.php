@@ -29,6 +29,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'country',
         'city',
         'role' => 'user',
+        'email_verified_at',
+        'google_id',
     ];
 
     /**
@@ -57,8 +59,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
     // public function markEmailAsVerified()
     // {
-    //     $this->email_verified_at = now();
-    //     $this->save();
+    //     return $this->forceFill([
+    //         'email_verified_at' => $this->freshTimestamp(),
+    //     ])->save();
     // }
     public function getJWTIdentifier()
     {

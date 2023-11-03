@@ -171,6 +171,10 @@ return [
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         KingFlamez\Rave\RaveServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+         // for social ligin
+         Laravel\Socialite\SocialiteServiceProvider::class,
+    
+        
 
         ])->toArray(),
 
@@ -191,6 +195,8 @@ return [
         'JWTAuthFactory' =>Tymon\JWTAuth\Facades\JWTAuthFactory::class,
         'Rave' => KingFlamez\Rave\Facades\Rave::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+         // for social ligin
+         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         ])->toArray(),
 
 ];

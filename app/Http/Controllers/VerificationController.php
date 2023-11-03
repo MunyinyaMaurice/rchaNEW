@@ -1,57 +1,34 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\RedirectsUsers;
-use Illuminate\Foundation\Auth\VerifiesEmails;
+use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
-class VerificationController extends Controller
+class VerificationControllers extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Email Verification Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller is responsible for handling email verification for any
-    | user that recently registered with the application. Emails may also
-    | be re-sent if the user didn't receive the original email message.
-    |
-    */
 
-    use VerifiesEmails, RedirectsUsers;
-
-    /**
-     * Where to redirect users after verification.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/home';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('signed')->only('verify');
-        $this->middleware('throttle:6,1')->only('verify', 'resend');
+    public function verifyUserEmails($id) {
+        // 2. Check if the user exists
+        $user = User::find($id);
+    
+        if (!$user) {
+            // Handle the case where the user does not exist
+            return ['error' => 'User not found'];
+        }
+    
+        // 3. Check if the user is already verified
+        if ($user->email_verified_at != null) {
+            return ['message' => 'User is already verified'];
+        }
+    
+        // 4. Update email_verified_at if the user is not verified
+        $user->email_verified_at = now();
+        $user->save();
+    
+        return ['message' => 'User email verified'];
     }
-
-    /**
-     * Show the email verification notice.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View
-     */
-    public function show(Request $request)
-    {
-        return $request->user()->hasVerifiedEmail()
-                        ? redirect($this->redirectPath())
-                        : view('verification.notice', [
-                            'pageTitle' => __('Account Verification')
-                        ]);
-    }
+    
 }

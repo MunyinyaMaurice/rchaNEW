@@ -42,8 +42,7 @@ return [
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            // 'username' => env('munyinyaTech@gmail.com'),
-            // 'password' => env('tmvikzqbguyxwgdc'),
+           
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],

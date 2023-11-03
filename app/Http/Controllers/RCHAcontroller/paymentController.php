@@ -122,7 +122,7 @@ return view('videoView')->with('token', $token->paid_link);
     }
 }
 
-public function getPaymentInfo($sortBy, $sortDirection) {
+public function getPaymentInfo($sortBy, $sortDirection,$perPage) {
     $user = JWTAuth::parseToken()->authenticate();
     
 // dd($user);
@@ -155,11 +155,18 @@ public function getPaymentInfo($sortBy, $sortDirection) {
         'payments.amount',
         'payments.created_at',
         'tokens.paid_token'
-    )->get();
-    // )->get()->all();
+//    )->get();
+        )->paginate($perPage);  
+    
     // }
-   // return $results;
-    return response()->json($results, 200);
+   // return $results; // Count the number of records
+   // $count = $results->count();
+
+    return response()->json([
+        // 'count' => $count,
+        'results' => $results
+    ], 200);
+    
 }
 public function showPaymentInfo(Request $request) {
     $user = JWTAuth::parseToken()->authenticate();
@@ -168,10 +175,25 @@ public function showPaymentInfo(Request $request) {
     $sortDirection = $request->query('sortDirection', 'desc'); // Default to descending order
 
     // Pass sorted data in payment info
-    $paymentInfo = $this->getPaymentInfo($sortBy, $sortDirection);
+    $perPage = $request->query('perPage', 2); // Default to 10 records per page
 
-    // return view('paymentInfo', ['paymentInfo' => $paymentInfo]);
-    return $paymentInfo;
+    $paymentInfo = $this->getPaymentInfo($sortBy, $sortDirection, $perPage);
+    
+    // return response()->json([
+    //     'paymentInfo' => $paymentInfo,
+    // ], 200);
+     return $paymentInfo;
+   // $paymentInfo = $this->getPaymentInfo($sortBy, $sortDirection);
+    
+//     $response = $paymentInfo->getData();
+
+//   //  $count = $response->count; // Access the count property
+
+//     return response()->json([
+//        // 'count' => $count,
+//         'paymentInfo' => $response->results
+//     ], 200);
+    // return $paymentInfo;
 }
 public function calculateTotalAmountPaid()
 {
