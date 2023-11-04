@@ -190,12 +190,22 @@ class userAuthController extends Controller
     {
         return response()->json([auth()->user()]);
     }
-    public function getAllUser()
+    public function getAllUser(Request  $request)
     {
-        $user = User::all();
-        $count = $user->count();
-        return response()->json(['user'=>$user,
-    'count'=>$count],201);
+        try {
+            $perPage = $request->input('per_page', 50); // Default to 10 items per page
+    
+            $user = User::paginate($perPage);
+    
+            if($user->count() > 0) {
+                return $user;
+            }
+    
+            return response()->json(['message'=>'no records found'], 404);
+        } catch(\Exception $e) {
+            Log::error($e->getMessage());
+            return response(['message'=> 'An error occurred while fetching All users.'], 500);
+        }
     }
     public function logout()
     {
