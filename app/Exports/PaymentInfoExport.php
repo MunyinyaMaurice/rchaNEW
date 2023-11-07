@@ -24,20 +24,29 @@ class PaymentInfoExport implements FromCollection
     return collect($this->paymentInfo);
     }
     public function mapArraybleRow($row): array
-{
-    dd($row);
-    return [
-        $row->email,
-        $row->phone_number,
-        $row->first_name,
-        $row->last_name,
-        $row->place_name,
-        $row->place_location,
-        $row->amount,
-        $row->created_at,
-        $row->paid_token
-    ];
-}
+    {
+         // Check if each value in the row is an array
+    foreach ($row as $key => $value) {
+        if (!is_array($value)) {
+            // Convert the value to an array
+            $row[$key] = [$value];
+        }
+    }
+
+        dd($row);
+        return [
+            $row->email,
+            $row->phone_number,
+            $row->first_name,
+            $row->last_name,
+            $row->place_name,
+            $row->place_location,
+            $row->amount,
+            $row->created_at->toArray(),
+            $row->paid_token->toArray()
+        ];
+    }
+    
 
 public function headings(): array
 {

@@ -86,7 +86,7 @@ class userAuthController extends Controller
     Log::error('Exception occurred: ' . $e->getMessage());
     return response()->json([
         'message' => 'An error occurred while registering user.',
-    ], 500);
+    ], 501);
 
 }
     }
@@ -160,32 +160,48 @@ class userAuthController extends Controller
      return ['message' => 'User email verified'];
 
 }
-
     public function login(Request $request)
-    {
-        $validator = Validator::make($request->All(), [
+{
+    try {
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6'
         ]);
-        if ($validator->fails())
+
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
-        //else login a user
-        if (!$token = auth()->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unautholized'], 401);
         }
-        return $this->crateNewToken($token);
+
+        // Attempt to log in the user
+        if (!$token = auth()->attempt($validator->validated())) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        return $this->createNewToken($token);
+    } catch (\Exception $e) {
+        // Handle any errors that occur
+        Log::error($e->getMessage());
+        return response(['message'=> 'An error occurred while creating token for user user login.'], 501);
     }
-    public function crateNewToken($token)
-    {
+}
+
+public function createNewToken($token)
+{
+    try {
         return response()->json([
             'access_token' => $token,
-            'token_type' => 'baerer',
-            // 'expires_in'=>auth()->factory()->getTTL()*60,
+            'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 4320,
-
             'user' => auth()->user()
-        ]);
+        ],201);
+        
+    } catch (\Exception $e) {
+        // Handle any errors that occur
+        Log::error($e->getMessage());
+        return response(['message'=> 'An error occurred while creating token for user user login in createNewToken.'], 500);
     }
+}
+
     public function profile()
     {
         return response()->json([auth()->user()]);
@@ -204,7 +220,7 @@ class userAuthController extends Controller
             return response()->json(['message'=>'no records found'], 404);
         } catch(\Exception $e) {
             Log::error($e->getMessage());
-            return response(['message'=> 'An error occurred while fetching All users.'], 500);
+            return response(['message'=> 'An error occurred while fetching All users.'], 501);
         }
     }
     public function logout()

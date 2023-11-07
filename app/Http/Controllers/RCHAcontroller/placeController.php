@@ -87,13 +87,36 @@ public function deletePlace($id)
     return response()->json(['message' => 'Place deleted successfully!'], 200);
 }
 //this function will only select place which has featured as place_status
+// public function placeFeature($place_status)
+// {
+//     try {
+//         // Get the featured places.
+//         $featuredPlaces = Place::where('place_status', $place_status)->get();
+
+//         // If there are any featured places, get their images.
+//         if ($featuredPlaces->count()) {
+//             $placeImages = [];
+
+//             foreach ($featuredPlaces as $featuredPlace) {
+//                 $placeImages[$featuredPlace->id] = Image::where('place_id', $featuredPlace->id)->get();
+//             }
+//         } else {
+//             // Return an empty response if there are no featured places.
+//             return response()->json([], 200);
+//         }
+
+//         // Return the featured places and their images.
+//         return response()->json(['places' => $featuredPlaces, 'images' => $placeImages], 200);
+//     } catch (\Exception $e) {
+//         Log::error('error accoured: ' . $e->getMessage());
+//         return response()->json(['message' => 'something happed while trying to get featured places'], 500);
+//     }
+// }
 public function placeFeature($place_status)
 {
     try {
-        // Get the featured places.
         $featuredPlaces = Place::where('place_status', $place_status)->get();
 
-        // If there are any featured places, get their images.
         if ($featuredPlaces->count()) {
             $placeImages = [];
 
@@ -101,17 +124,14 @@ public function placeFeature($place_status)
                 $placeImages[$featuredPlace->id] = Image::where('place_id', $featuredPlace->id)->get();
             }
         } else {
-            // Return an empty response if there are no featured places.
             return response()->json([], 200);
         }
 
-        // Return the featured places and their images.
         return response()->json(['places' => $featuredPlaces, 'images' => $placeImages], 200);
     } catch (\Exception $e) {
         Log::error('error accoured: ' . $e->getMessage());
         return response()->json(['message' => 'something happed while trying to get featured places'], 500);
     }
+
 }
-
-
 }

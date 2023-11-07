@@ -182,7 +182,7 @@ class paymentController extends Controller
         // return response()->json([
         //     'paymentInfo' => $paymentInfo,
         // ], 200);
-        return $paymentInfo;
+       return $paymentInfo;
         // $paymentInfo = $this->getPaymentInfo($sortBy, $sortDirection);
 
         //     $response = $paymentInfo->getData();
