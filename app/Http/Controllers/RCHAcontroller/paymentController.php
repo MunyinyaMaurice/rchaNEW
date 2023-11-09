@@ -226,8 +226,8 @@ class paymentController extends Controller
     public function exportPaymentInfo()
     {
         try {
-            $sortBy = 'created_at'; // Replace with your desired sorting criteria
-            $sortDirection = 'desc'; // Replace with your desired sorting direction
+            $sortBy = 'created_at'; 
+            $sortDirection = 'desc'; 
             $perPage = 20; // Replace with your desired number of records per page
     
             $response = $this->getPaymentInfo($sortBy, $sortDirection, $perPage);
