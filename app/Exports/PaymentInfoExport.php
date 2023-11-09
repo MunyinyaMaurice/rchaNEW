@@ -14,14 +14,15 @@ class PaymentInfoExport implements FromCollection
     /**
     * @return \Illuminate\Support\Collection
     */
-    protected $paymentInfo;
-    public function __construct($paymentInfo)
+    protected $showPaymentInfo;
+
+    public function __construct($showPaymentInfo)
     {
-        $this->paymentInfo = $paymentInfo;
+        $this->showPaymentInfo = $showPaymentInfo;
     }
     public function collection()
     {
-    return collect($this->paymentInfo);
+    return collect($this->showPaymentInfo);
     }
     public function mapArraybleRow($row): array
     {
@@ -79,5 +80,9 @@ public function headings(): array
 
     //     return $results;
     
+    // }*/
+    // public function query()
+    // {
+    //     return PaymentInfoController::getPaymentInfo($sortBy, $sortDirection, $perPage)->get();
     // }
 }

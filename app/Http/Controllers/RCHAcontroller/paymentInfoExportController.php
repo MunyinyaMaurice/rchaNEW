@@ -12,11 +12,16 @@ use Illuminate\Support\Facades\Storage;
 
 class paymentInfoExportController extends Controller
 {
-public function exportPaymentInfo()
-{
-    $paymentController = new paymentController();
-        $paymentInfo = $paymentController->showPaymentInfo(request());
-        return Excel::download(new PaymentInfoExport($paymentInfo), 'payment-info.xlsx');
+// public function exportPaymentInfo()
+// {
+//     $paymentController = new paymentController();
+//         $paymentInfo = $paymentController->showPaymentInfo(request());
+//         return Excel::download(new PaymentInfoExport($paymentInfo), 'payment-info.xlsx');
    
+// }
+public function exportPaymentInfo($sortBy, $sortDirection, $perPage)
+{
+    return Excel::download(new PaymentInfoExport($sortBy, $sortDirection, $perPage), 'payment_info.xlsx');
 }
+
 }

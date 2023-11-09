@@ -124,81 +124,99 @@ class paymentController extends Controller
 
     public function getPaymentInfo($sortBy, $sortDirection, $perPage)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
 
-        // dd($user);
-        // Check if the authenticated user has an admin role
-        if ($user->role === 'admin') {
-            $payInfoQuery = DB::table('users')
-                ->join('payments', 'users.id', '=', 'payments.user_id')
-                ->join('places', 'payments.place_id', '=', 'places.id')
-                ->join('tokens', 'payments.token_id', '=', 'tokens.id');
-        } else {
-            $payInfoQuery = DB::table('users')
-                ->join('payments', 'users.id', '=', 'payments.user_id')
-                ->join('places', 'payments.place_id', '=', 'places.id')
-                ->join('tokens', 'payments.token_id', '=', 'tokens.id')
-                ->where('users.id', $user->id);
+            // dd($user);
+            // Check if the authenticated user has an admin role
+            if ($user->role === 'admin') {
+                $payInfoQuery = DB::table('users')
+                    ->join('payments', 'users.id', '=', 'payments.user_id')
+                    ->join('places', 'payments.place_id', '=', 'places.id')
+                    ->join('tokens', 'payments.token_id', '=', 'tokens.id');
+            } else {
+                $payInfoQuery = DB::table('users')
+                    ->join('payments', 'users.id', '=', 'payments.user_id')
+                    ->join('places', 'payments.place_id', '=', 'places.id')
+                    ->join('tokens', 'payments.token_id', '=', 'tokens.id')
+                    ->where('users.id', $user->id);
+            }
+
+            // Add sorting logic
+            $payInfoQuery->orderBy($sortBy, $sortDirection);
+            //returning the object
+            $results = $payInfoQuery
+                ->select(
+                    'users.email',
+                    'users.phone_number',
+                    'users.first_name',
+                    'users.last_name',
+                    'places.place_name',
+                    'places.place_location',
+                    'payments.amount',
+                    'payments.created_at',
+                    'tokens.paid_token'
+                    //    )->get();
+                )->paginate($perPage);
+
+            // }
+            // return $results; // Count the number of records
+            // $count = $results->count();
+
+            return response()->json([
+                // 'count' => $count,
+                'results' => $results
+            ], 200);
+            // return [
+            //     'results' => $results->items(), // Get the paginated items
+            // ];
+        } catch (\Exception $e) {
+            Log::error('Exception occurred' . $e->getMessage());
+            return response()->json(['message' => 'Something happed while gettingPayment info']);
         }
-
-        // Add sorting logic
-        $payInfoQuery->orderBy($sortBy, $sortDirection);
-        //returning the object
-        $results = $payInfoQuery
-            ->select(
-                'users.email',
-                'users.phone_number',
-                'users.first_name',
-                'users.last_name',
-                'places.place_name',
-                'places.place_location',
-                'payments.amount',
-                'payments.created_at',
-                'tokens.paid_token'
-                //    )->get();
-            )->paginate($perPage);
-
-        // }
-        // return $results; // Count the number of records
-        // $count = $results->count();
-
-        return response()->json([
-            // 'count' => $count,
-            'results' => $results
-        ], 200);
     }
     public function showPaymentInfo(Request $request)
     {
-        $user = JWTAuth::parseToken()->authenticate();
-        // $sortBy = $request->query('sortBy', 'created_at'); // Default to sorting by created_at
-        $sortBy = $request->query('sortBy', 'first_name');
-        $sortDirection = $request->query('sortDirection', 'desc'); // Default to descending order
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+            // $sortBy = $request->query('sortBy', 'created_at'); // Default to sorting by created_at
+            $sortBy = $request->query('sortBy', 'first_name');
+            $sortDirection = $request->query('sortDirection', 'desc'); // Default to descending order
 
-        // Pass sorted data in payment info
-        $perPage = $request->query('perPage', 2); // Default to 10 records per page
+            // Pass sorted data in payment info
+            $perPage = $request->query('perPage', 20); // Default to 10 records per page
 
-        $paymentInfo = $this->getPaymentInfo($sortBy, $sortDirection, $perPage);
+            $paymentInfo = $this->getPaymentInfo($sortBy, $sortDirection, $perPage);
 
-        // return response()->json([
-        //     'paymentInfo' => $paymentInfo,
-        // ], 200);
-       return $paymentInfo;
-        // $paymentInfo = $this->getPaymentInfo($sortBy, $sortDirection);
+            // return response()->json([
+            //     'paymentInfo' => $paymentInfo,
+            // ], 200);
+            return $paymentInfo;
+            // $paymentInfo = $this->getPaymentInfo($sortBy, $sortDirection);
 
-        //     $response = $paymentInfo->getData();
+            //     $response = $paymentInfo->getData();
 
-        //   //  $count = $response->count; // Access the count property
+            //   //  $count = $response->count; // Access the count property
 
-        //     return response()->json([
-        //        // 'count' => $count,
-        //         'paymentInfo' => $response->results
-        //     ], 200);
-        // return $paymentInfo;
+            //     return response()->json([
+            //        // 'count' => $count,
+            //         'paymentInfo' => $response->results
+            //     ], 200);
+            // return $paymentInfo;
+        } catch (\Exception $e) {
+            Log::error('Exception occurred' . $e->getMessage());
+            return response()->json(['message' => 'something happend while showPaymentInfo']);
+        }
     }
     public function calculateTotalAmountPaid()
     {
-        $totalAmountPaid = Payment::sum('amount');
+        try {
+            $totalAmountPaid = Payment::sum('amount');
 
-        return $totalAmountPaid;
+            return $totalAmountPaid;
+        } catch (\Exception $e) {
+            Log::error('Exception occurred' . $e->getMessage());
+            return response()->json(['message' => 'something happend while calculateTotalAmountPaid']);
+        }
     }
 }
