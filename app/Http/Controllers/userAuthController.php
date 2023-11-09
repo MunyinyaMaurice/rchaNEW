@@ -36,16 +36,17 @@ class userAuthController extends Controller
             $validator = Validator::make($request->All(), [
                 'first_name' => 'required',
                 'last_name' => 'required',
-                'email' => 'required|string|email|unique:users',
-                'phone_number' => 'required',
+                'email' => 'required|string|email|unique:users,email',
+                'phone_number' => 'required|unique:users,phone_number',
                 'country' => 'required',
                 'password' => 'required|string|confirmed|min:6',
                 'city' => 'required|string',
-                // 'role'=>'user',
-
             ]);
-            if ($validator->fails())
-                return response()->json($validator->errors()->toJson(), 400);
+            
+            if ($validator->fails()) {
+                return response()->json(['message'=>$validator->errors()], 400);
+            }
+            
             $user = new User();
             $user->first_name = $request->input('first_name');
             $user->last_name = $request->input('last_name');
