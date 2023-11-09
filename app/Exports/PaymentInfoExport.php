@@ -2,67 +2,59 @@
 
 namespace App\Exports;
 
-use App\Http\Controllers\RCHAcontroller\paymentController;
 use App\Models\Payment;
+// use Illuminate\Support\Facades\DB;
 // use App\Exports\PaymentInfoExport;
-use Illuminate\Support\Facades\DB;
-use Tymon\JWTAuth\Facades\JWTAuth;
+// use Tymon\JWTAuth\Facades\JWTAuth;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use App\Http\Controllers\RCHAcontroller\paymentController;
 
 class PaymentInfoExport implements FromCollection
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    protected $showPaymentInfo;
+    use Exportable;
 
-    public function __construct($showPaymentInfo)
+    protected $data;
+
+    public function __construct($data)
     {
-        $this->showPaymentInfo = $showPaymentInfo;
+        $this->data = $data;
     }
+
     public function collection()
     {
-    return collect($this->showPaymentInfo);
+        return collect($this->data['data']);
     }
-    public function mapArraybleRow($row): array
-    {
-         // Check if each value in the row is an array
-    foreach ($row as $key => $value) {
-        if (!is_array($value)) {
-            // Convert the value to an array
-            $row[$key] = [$value];
-        }
-    }
-
-        dd($row);
-        return [
-            $row->email,
-            $row->phone_number,
-            $row->first_name,
-            $row->last_name,
-            $row->place_name,
-            $row->place_location,
-            $row->amount,
-            $row->created_at->toArray(),
-            $row->paid_token->toArray()
-        ];
-    }
-    
-
-public function headings(): array
-{
-    return [
-        'User Email',
-        'User Phone Number',
-        'First Name',
-        'Last Name',
-        'Place Name',
-        'Place Location',
-        'Amount',
-        'Created At',
-        'Paid Token'
-    ];
 }
+
+// class PaymentInfoExport implements FromCollection
+// {
+    // /**
+    // * @return \Illuminate\Support\Collection
+    // */
+//     protected $paymentInfo;
+//     public function __construct($paymentInfo)
+//     {
+//         $this->paymentInfo = $paymentInfo;
+//     }
+//     public function collection()
+//     {
+//     return collect($this->paymentInfo);
+//     }
+// public function headings(): array
+// {
+//     return [
+//         'User Email',
+//         'User Phone Number',
+//         'First Name',
+//         'Last Name',
+//         'Place Name',
+//         'Place Location',
+//         'Amount',
+//         'Created At',
+//         'Paid Token'
+//     ];
+// }
     // private function getPaymentInfo()
     // {
     //     // $user = JWTAuth::parseToken()->authenticate();
@@ -80,9 +72,5 @@ public function headings(): array
 
     //     return $results;
     
-    // }*/
-    // public function query()
-    // {
-    //     return PaymentInfoController::getPaymentInfo($sortBy, $sortDirection, $perPage)->get();
     // }
-}
+// }

@@ -12,11 +12,14 @@ use App\Models\Payment;
 use Cohensive\OEmbed\Embed;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+// use App\Exports\PaymentInfoExport;
+use App\Exports\PaymentInfoExport;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Cohensive\OEmbed\Facades\OEmbed;
+use Maatwebsite\Excel\Facades\Excel;
 use Tymon\JWTAuth\Contracts\Providers\Auth;
 
 class paymentController extends Controller
@@ -170,7 +173,8 @@ class paymentController extends Controller
             // return [
             //     'results' => $results->items(), // Get the paginated items
             // ];
-        } catch (\Exception $e) {
+          
+            }catch (\Exception $e) {
             Log::error('Exception occurred' . $e->getMessage());
             return response()->json(['message' => 'Something happed while gettingPayment info']);
         }
@@ -219,4 +223,27 @@ class paymentController extends Controller
             return response()->json(['message' => 'something happend while calculateTotalAmountPaid']);
         }
     }
+    public function exportPaymentInfo()
+    {
+        try {
+            $sortBy = 'created_at'; // Replace with your desired sorting criteria
+            $sortDirection = 'desc'; // Replace with your desired sorting direction
+            $perPage = 20; // Replace with your desired number of records per page
+    
+            $response = $this->getPaymentInfo($sortBy, $sortDirection, $perPage);
+    
+            if ($response->getStatusCode() === 200) {
+                $data = json_decode($response->getContent(), true);
+    
+                return Excel::download(new PaymentInfoExport($data['results']), 'payment_info.xlsx');
+            }
+    
+            return response()->json(['message' => 'Error exporting data to Excel'], $response->getStatusCode());
+        } catch (\Exception $e) {
+            Log::error('Exception occurred: ' . $e->getMessage());
+            return response()->json(['message' => 'An error occurred while exporting data to Excel'], 500);
+        }
+    }
+    
+
 }

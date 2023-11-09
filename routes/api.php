@@ -118,7 +118,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
 
     /**ROUTE FOR EXPORTING FILE IN EXCEL */
-    Route::get('/export-payment-info', [paymentInfoExportController::class, 'exportPaymentInfo']);
+    Route::get('/export-payment-info', [paymentController::class, 'exportPaymentInfo']);
 
     /** Generate paid and free Token and validate  */
 
