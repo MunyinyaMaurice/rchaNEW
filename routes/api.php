@@ -71,6 +71,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::PUT('/updateImage/{id}', [imagesController::class, 'updateImage']);
         Route::delete('/deleteImage/{id}', [imagesController::class, 'deleteImage']);
         Route::get('/getImageById/{id}', [imagesController::class, 'getImageById']);
+        Route::get('getAllImages', [imagesController::class,'getAllImages']);
 
 
         /*  ROUTE FOR PLACE CONTROLLER API*/ //
@@ -97,10 +98,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         /** ROUTE FOR CATEGORY */
         // Route::prefix('categories')->group(function () {
         Route::get('/listCategories', [CategoryController::class, 'listCategories']);
-        Route::get('/categories/{id}', [CategoryController::class, 'getCategoryById']);
+        Route::get('/categories/{cat_id}', [CategoryController::class, 'getCategoryById']);
         Route::post('/categories', [CategoryController::class, 'store']);
-        Route::put('/categories/{id}', [CategoryController::class, 'update']);
-        Route::delete('/categories/{id}', [CategoryController::class, 'delete']);
+        Route::put('/categories/{cat_id}', [CategoryController::class, 'update']);
+        Route::delete('/categories/{cat_id}', [CategoryController::class, 'delete']);
         // });
 
     });

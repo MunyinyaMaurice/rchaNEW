@@ -116,4 +116,17 @@ class imagesController extends Controller
             return response()->json(['message' => 'something happend while delete image']);
         }
     }
+    public function getAllImages(){
+       try{
+        $images = Image::all();
+        if ($images){
+            return response()->json(['images :'=> $images],201);
+        }
+        return response()->json(['no image found'=> $images],404);
+    
+    }catch (\Exception $e) {
+        Log::error('error occured:'. $e->getMessage());
+        return response()->json(['message'=> 'error occured while getting all images']);
+    }
+    }
 }
