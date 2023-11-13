@@ -129,4 +129,24 @@ class imagesController extends Controller
         return response()->json(['message'=> 'error occured while getting all images']);
     }
     }
+    public function getImageForPlace($place_id){
+
+        try{
+            $place = Place::find($place_id);
+            if ($place) {
+    
+            
+            $images = Image::find($place_id);
+            if ($images->place_id === $place_id ){
+                return response()->json([
+                    'place' =>$place->place_name,
+                    'images'=> $images],200);
+        }
+        return response()->json(['message' =>'place not found'],404);
+    }
+    }catch (\Exception $e) {
+        Log::error('error ocuured'. $e->getMessage());
+        return response()->json(['message'=> 'error occured while getting images for place by id'],501);
+    }
+}
 }
