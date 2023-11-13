@@ -56,6 +56,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 /**ROUTE TO SEND verification TOKEN EMAIL TO PAID USER */
 Route::get('/verifyUserEmail/{id}', [userAuthController::class, 'verifyUserEmail']);
 
+// Reset Password Routes
+// Route::get('/password/reset', 'App\Http\Controllers\Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+// Route::post('/password/email', 'App\Http\Controllers\Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+// Route::get('/password/reset/{token}', 'App\Http\Controllers\Auth\ResetPasswordController@showResetForm')->name('password.reset');
+// Route::post('/password/reset', 'App\Http\Controllers\Auth\ResetPasswordController@reset');
+
 require __DIR__.'/auth.php';
 
  Auth::routes();

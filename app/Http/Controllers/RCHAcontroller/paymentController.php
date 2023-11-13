@@ -5,36 +5,50 @@ namespace App\Http\Controllers\RCHAcontroller;
 use view;
 use session;
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Place;
 use App\Models\Token;
-use App\Models\Payment;
 // use Cohensive\OEmbed\OEmbed;
+use App\Models\Payment;
 use Cohensive\OEmbed\Embed;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 // use App\Exports\PaymentInfoExport;
+use Illuminate\Http\Request;
 use App\Exports\PaymentInfoExport;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Cohensive\OEmbed\Facades\OEmbed;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
-use Tymon\JWTAuth\Contracts\Providers\Auth;
+// use App\Http\Controllers\userAuthController;
 
 class paymentController extends Controller
 {
-    public function generatePaidLink(Request $request)
+  
+    public function generatePaidLink($place_id)
     {
         try {
             $user = JWTAuth::parseToken()->authenticate(); // Get the authenticated user using JWT
-            $place = Place::find($request->get('place_id'));
+            $place = Place::find($place_id);
             if (!$place) {
                 return response()->json([
                     'message' => 'Place not found!',
                 ], 404);
             }
+            // Search for the last payment record made by the user for the specific place
+            $lastPayment = Payment::where('user_id', $user->id)
+            ->where('place_id', $place_id)
+            ->latest()
+            ->first();
 
+             
+            if ($lastPayment && !$lastPayment->token_id) {
+             
+             
             $paidToken = Str::random(32);
             // Set the token expiration time to 1 minutes from now
             // $tokenExpiresAt = Carbon::now()->addMinutes(20);
@@ -46,12 +60,30 @@ class paymentController extends Controller
             $token->paid_link = $place->place_link . '/' . $paidToken;
             $token->save();
 
+            // If a payment record is found and token_id is null, update the token_id
+            $lastPayment->token_id = $token->id;
+            $lastPayment->save();
+
+            //send paid token to user
+            if (isset($paidToken)) {
+                Mail::to($user->email)
+                    ->send(new \App\Mail\sendVideoLink($user, $paidToken));
+
+
+                //return redirect(url('/http://localhost:3000/dashboard/watchVideo/{{$paidToken}}'));
+
+                // return 'Email sent successfully!';
+            }
+            
             return response()->json([
-                'message' => 'Paid link generated successfully!',
+                'message' => 'Paid link generated successfully! sent to user email!',
                 'paidLink' => $token->paid_link,
                 'paidToken' => $paidToken,
                 'expires_in' => $tokenExpiresAt,
+                // 'token' => $token->id,
+
             ], 200);
+        }
         } catch (\Exception $e) {
             Log::error('Exception occurred: ' . $e->getMessage());
             return response()->json([
@@ -59,6 +91,7 @@ class paymentController extends Controller
             ], 500);
         }
     }
+
 
     public function validatePaidToken($paidToken)
     {
@@ -81,7 +114,14 @@ class paymentController extends Controller
             if ($now->isAfter($tokenExpiresAt)) {
                 return response()->json(['message' => 'Token has expired'], 422);
             }
-            return view('videoView')->with('token', $token->paid_link);
+            //return response()->json(['token' =>$token->paid_link], 201);
+            // return view('videoView')->with('token', $token->paid_link);
+            // return redirect('https://inteko.netlify.app/dashboard/watchVideo/' . $token->paid_link);
+
+            //Construct the URL for redirect
+            $redirectUrl = $token->paid_link;
+            // Redirect away to the stored external URL
+            return redirect()->away($redirectUrl);
         } catch (\Exception $e) {
             Log::error('Exception occurred: ' . $e->getMessage());
             return response()->json([
@@ -90,19 +130,20 @@ class paymentController extends Controller
         }
     }
 
-    public function payment(Request $request)
-    {
 
+    public function payment($place_id,$user_id)
+    {
+        // dd($user_id,$place_id);
         try {
-            // $user = Auth::user();
-            $user = JWTAuth::parseToken()->authenticate(); // Get the authenticated user using JWT
-            $token = Token::find($request->get('token_id'));
-            $place = Place::find($request->get('place_id'));
+            
+            $place = Place::find($place_id);
             $payment = new Payment();
-            $payment->user_id = $user->id;
-            $payment->place_id = $place->id;
-            $payment->token_id = $token->id;
-            $payment->amount = $request->get('amount');
+            // $payment->user_id = $user->id;
+            $payment->user_id = $user_id;
+            $payment->place_id = $place_id;
+            // $payment->token_id = $token->id;
+            $payment->token_id = null;
+            $payment->amount = $place->amount;
 
             if ($payment->save()) {
                 Log::info('Payment created');
@@ -173,8 +214,8 @@ class paymentController extends Controller
             // return [
             //     'results' => $results->items(), // Get the paginated items
             // ];
-          
-            }catch (\Exception $e) {
+            return Excel::download(new PaymentInfoExport($data['results']), 'payment_info.xlsx');
+        } catch (\Exception $e) {
             Log::error('Exception occurred' . $e->getMessage());
             return response()->json(['message' => 'Something happed while gettingPayment info']);
         }
@@ -226,24 +267,60 @@ class paymentController extends Controller
     public function exportPaymentInfo()
     {
         try {
-            $sortBy = 'created_at'; 
-            $sortDirection = 'desc'; 
+            $sortBy = 'created_at';
+            $sortDirection = 'desc';
             $perPage = 20; // Replace with your desired number of records per page
-    
+
             $response = $this->getPaymentInfo($sortBy, $sortDirection, $perPage);
-    
+
             if ($response->getStatusCode() === 200) {
                 $data = json_decode($response->getContent(), true);
-    
+
                 return Excel::download(new PaymentInfoExport($data['results']), 'payment_info.xlsx');
             }
-    
+
             return response()->json(['message' => 'Error exporting data to Excel'], $response->getStatusCode());
         } catch (\Exception $e) {
             Log::error('Exception occurred: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred while exporting data to Excel'], 500);
         }
     }
-    
 
+    public function infoBeforePayment($place_id)
+    {
+
+        try {
+            $user = JWTAuth::parseToken()->authenticate(); // Get the authenticated user using JWT
+
+            $place = Place::where('id', $place_id)->first();
+            if (!$place) {
+                return response()->json(['message' => 'place not found'], 404);
+            }
+            return response()->json([
+                'user' => $user,
+                'place' => $place,
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Exception occured:' . $e->getMessage());
+            return response()->json(['message' => 'something happened while getting infoBeforePayment.'], 501);
+        }
+    }
 }
+
+
+  //Validate the paid token
+            // $validatePaidToken = app('App\Http\Controllers\RCHAcontroller\paymentController')->validatePaidToken($paidToken);
+
+            // Log::info('validatePaidToken: ' . $validatePaidToken);
+            // if ($validatePaidToken) {
+            //     // return redirect(url('https://rcha.innorios.com/api/auth/videoView/{{$paidToken}}'));
+            //     // Construct the redirect URL
+            //     //$redirectUrl = url('/api/auth/videoView/' . $paidToken);
+
+            //     // Construct the URL for redirect
+            //     $redirectUrl = "https://inteko.netlify.app/dashboard/videoView/{$paidToken}";
+
+
+            //     // Redirect to the constructed URL
+            //     return redirect($redirectUrl);
+            // }

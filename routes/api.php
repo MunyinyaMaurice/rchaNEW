@@ -46,6 +46,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
     Route::get('/profile', [userAuthController::class, 'profile'])->name('profile');
     // });
+    
+    Route::get('/getLoggedInUser', [userAuthController::class,'getUserById']);//Logged in user
 
     Route::post('/login', [userAuthController::class, 'login'])->name('login');
     Route::post('/register', [userAuthController::class, 'register'])->name('register');
@@ -86,7 +88,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         /** ROUTE FOR PAYMENT INFO CONTROLLER */
         Route::post('/savePaymentinfo', [paymentController::class, 'payment']);
 
-        Route::get('/processPaidLinks/{id}', [paymentController::class, 'processPaidLink']);
+        // Route::get('/processPaidLinks/{id}', [paymentController::class, 'processPaidLink']);
 
         /**     GET LIST OF ALL USERS */
 
@@ -104,6 +106,17 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     });
 
     //=====================================  ADIMIN ZONE  ENDs ================================================================
+ 
+ /**    GET infoBeforePayment */
+Route::get('/infoBeforePayment/{place_id}', [paymentController::class,'infoBeforePayment']);
+
+    /** ROUTE FOR GETFEATURED PLACES*/
+ Route::get('/placeFeature/{place_status}', [placeController::class, 'placeFeature']);
+
+ /** ROUTE FOR PAYMENT INFO CONTROLLER */
+ Route::post('/savePaymentinfo/{place_id}', [paymentController::class, 'payment']);
+
+ Route::get('/processPaidLinks/{id}', [paymentController::class, 'processPaidLink']);
 
     /** ROUTE TO DISPLAY USER HISTORICAL */
     Route::get('/getPaymentInfo', [paymentController::class, 'getPaymentInfo']);
@@ -114,7 +127,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('/pay', [flutterController::class, 'initialize'])->name('pay');
 
     // The callback url after a payment
-    Route::get('/rave/callback', [flutterController::class, 'callback'])->name('callback');
+    Route::get('/rave/callback/{place_id}/{user_id}', [flutterController::class, 'callback'])->name('callback');
 
 
     /**ROUTE FOR EXPORTING FILE IN EXCEL */
@@ -122,7 +135,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
     /** Generate paid and free Token and validate  */
 
-    Route::post('/generatePaidLink', [paymentController::class, 'generatePaidLink']);
+    Route::post('/generatePaidLink/{place_id}', [paymentController::class, 'generatePaidLink']);
+    //Route::post('/generate-paid-link', [PaymentController::class, 'generatePaidLink']);
     Route::get('/videoView/{paidToken}', [paymentController::class, 'validatePaidToken']);
 
     /** GETTING FEEDBACK FROM USER */
@@ -139,8 +153,9 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             $place_id = $request->input('place_id');
 
             // Call the generatePaidLink method with a request object
-            $paidLinkResponse = app('App\Http\Controllers\RCHAcontroller\paymentController')->generatePaidLink($request);
-
+             $paidLinkResponse = app('App\Http\Controllers\RCHAcontroller\paymentController')->generatePaidLink($request);
+           
+                                        
             // Get the JSON data from the response
             $data = $paidLinkResponse->getData();
 
@@ -159,6 +174,49 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             ], 500);
         }
     });
+    // Route::post('/sendVideoLinkView', function (Request $request) {
+    //     try {
+    //         $user = Auth::check() ? Auth::user() : null;
+    //         $place_id = $request->input('place_id');
+    
+    //         // Call the generatePaidLink method with a request object
+    //        // $paidLinkResponse = app('app\Http\Controllers\paymentGatways\flutterController')->generatePaidLink($request);
+    //        $paidLinkResponse = app('App\Http\Controllers\RCHAcontroller\paymentController')->generatePaidLink($request);
+           
+    //         $data = $paidLinkResponse->getData();
+    
+    //         if (isset($data->paidToken)) {
+    //             if ($user) {
+    //                 // Send email with paid token to authenticated user
+    //                 Mail::to($user->email)
+    //                     ->send(new \App\Mail\sendVideoLink(
+    //                         $user,
+    //                         $data->place_name,
+    //                         $data->place_id,
+    //                         $data->place_location,
+    //                         $data->amount,
+    //                         $data->paidToken
+    //                     ));
+    //             } else {
+    //                 // Store paid token in session for unauthenticated user
+    //                 session()->put('paidToken', $data->paidToken);
+    
+    //                 // Redirect to login page with paid token in query string
+    //                 return redirect()->route('login')->with('paidToken', $data->paidToken);
+    //             }
+    
+    //             return 'Email sent successfully!';
+    //         }
+    
+    //         return 'Error generating paid link';
+    //     } catch (\Exception $e) {
+    //         Log::error('Exception occurred: ' . $e->getMessage());
+    //         return response()->json([
+    //             'message' => 'An error occurred while sending the paid token.',
+    //         ], 500);
+    //     }
+    // });
+    
 
     /** SENDING FREE TOKEN TO CUSTOM EMAIL */
 

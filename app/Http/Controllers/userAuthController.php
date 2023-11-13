@@ -69,10 +69,7 @@ class userAuthController extends Controller
             event(new Registered($user));
 
             Auth::login($user);
-            // $user->sendEmailVerificationNotification(); 
-            // Send email verification email '  this is link verification'
-            //   $verificationToken = hash_hmac('sha256', $user->email, config('app.key'));
-            //   Mail::to($user->email)->send(new SendVerificationEmail($user, $verificationToken));
+           
 
             return response()->json(
                 [
@@ -108,7 +105,7 @@ class userAuthController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json($validator->errors()->toJson(), 400);
+                return response()->json(['message',$validator->errors()], 400);
             }
 
             // Update user information
@@ -221,6 +218,19 @@ class userAuthController extends Controller
             Log::error($e->getMessage());
             return response(['message' => 'An error occurred while fetching All users.'], 501);
         }
+    }
+    public function getUserById(){
+        try {
+        $user = Auth::user(); // Get the authenticated user
+        if ($user){
+           return response()->json(['user'=>$user]);
+          // return $user;
+        }
+        return response()->json(['message'=> 'user is not found'],405);
+    } catch (\Exception $e) {
+        Log::error($e->getMessage());
+        return response(['message' => 'An error occurred while fetching loged in user.'], 501);
+    }
     }
     public function logout()
     {

@@ -28,6 +28,7 @@ class placeController extends Controller
                 'category_id' => 'required',
                 'place_preview_video' => 'required',
                 'place_link' => 'required',
+                'amount'=> 'required',
             ]);
 
             if ($validator->fails()) {
@@ -95,6 +96,7 @@ class placeController extends Controller
                 'place_details' => 'required',
                 'place_preview_video' => 'required',
                 'place_link' => 'required',
+                'amount'=> 'required',
             ]);
 
             if ($validator->fails()) {

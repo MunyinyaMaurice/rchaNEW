@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('place_status');
             $table->string('place_details');
             $table->string('place_preview_video');
-            
+            $table->integer('amount');
+           
             $table->string('place_link');
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->timestamps();

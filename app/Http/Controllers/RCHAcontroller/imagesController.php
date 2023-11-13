@@ -21,7 +21,9 @@ class imagesController extends Controller
 
             $file = $request->file('file');
             $imageName = time() . '.' . $file->hashName();
-            $image_path = public_path() . '/images';
+             $image_path = public_path() . '/images';
+           // $image_path = public_path() . '/images/' . $imageName;
+
             $saveImage = $file->move($image_path, $imageName);
 
             if ($saveImage) {
@@ -41,6 +43,8 @@ class imagesController extends Controller
             return response()->json(['message' => 'something happend while saving image in DB']);
         }
     }
+
+
 
     public function getImageById($image_id)
     {
