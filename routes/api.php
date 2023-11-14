@@ -168,7 +168,7 @@ Route::get('/infoBeforePayment/{place_id}', [paymentController::class,'infoBefor
                 return 'Email sent successfully!';
             }
 
-            return 'Error generating paid link';
+            return 'Error for sending generated paid link';
         } catch (\Exception $e) {
             Log::error('Exception occurred: ' . $e->getMessage());
             return response()->json([

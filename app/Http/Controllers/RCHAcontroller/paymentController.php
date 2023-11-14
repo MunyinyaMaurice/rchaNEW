@@ -154,8 +154,8 @@ class paymentController extends Controller
     
             return response()->json([
                 'message' => 'Paid link generated successfully!',
-                'paidLink' => $token->paid_link,
-                'paidToken' => $paidToken,
+                'freeLink' => $token->paid_link,
+                'freeToken' => $paidToken,
                 'expires_in' => $tokenExpiresAt,
             ], 200);
         } catch (\Exception $e) {
