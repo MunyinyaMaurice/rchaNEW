@@ -129,7 +129,43 @@ class paymentController extends Controller
             ], 500);
         }
     }
-
+    //this function will generate free token in admin and this token will be sent to orgisan email
+    public function generateFreeLink(Request $request)
+    {
+        try {
+            $user = JWTAuth::parseToken()->authenticate(); // Get the authenticated user using JWT
+            $place = Place::find($request->get('place_id'));
+            if (!$place) {
+                return response()->json([
+                    'message' => 'Place not found!',
+                ], 404);
+            }
+    
+            $paidToken = Str::random(32);
+            // Set the token expiration time to 1 minutes from now
+            // $tokenExpiresAt = Carbon::now()->addMinutes(20);
+            $tokenExpiresAt = Carbon::now()->addHours(24);
+    
+            $token = new Token();
+            $token->paid_token = $paidToken;
+            $token->token_expires_at = $tokenExpiresAt;
+            $token->paid_link = $place->place_link . '/' . $paidToken;
+            $token->save();
+    
+            return response()->json([
+                'message' => 'Paid link generated successfully!',
+                'paidLink' => $token->paid_link,
+                'paidToken' => $paidToken,
+                'expires_in' => $tokenExpiresAt,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Exception occurred: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while generating the paid link.',
+            ], 500);
+        }
+    }
+    
 
     public function payment($place_id,$user_id)
     {

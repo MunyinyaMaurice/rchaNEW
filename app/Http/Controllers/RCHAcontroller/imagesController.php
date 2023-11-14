@@ -21,8 +21,8 @@ class imagesController extends Controller
 
             $file = $request->file('file');
             $imageName = time() . '.' . $file->hashName();
-             $image_path = public_path() . '/images';
-           // $image_path = public_path() . '/images/' . $imageName;
+            $image_path = public_path() . '/images';
+            // $image_path = public_path() . '/images/' . $imageName;
 
             $saveImage = $file->move($image_path, $imageName);
 
@@ -63,30 +63,34 @@ class imagesController extends Controller
         }
     }
 
-    public function updateImage(Request $request, $id)
-    {
-        try {
-            $request->validate([
-                'place_id' => 'required|exists:places,id', // Corrected the validation rule
-                'image_path' => 'required|string',
-            ]);
-            //dd($request);
-            $image = Image::findOrFail($id);
-            // dd($image);
+    public function updateImage(Request $request, $image_id)
+{
+    try {
+        $request->validate([
+            'place_id' => 'required|exists:places,id',
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Adjusted the validation rule for the file
+        ]);
 
-            if (!$request->hasFile('file')) { // Changed to check for 'file' key
-                return response()->json(['upload_file_not_found'], 404);
-            }
+        $image = Image::find($image_id);
 
+        if (!$image) {
+            return response()->json(['message' => 'Image not found'], 404);
+        }
+
+        if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $imageName = time() . '.' . $file->hashName();
+            $imageName = time() . '.' . $file->getClientOriginalExtension();
             $image_path = public_path() . '/images/updatedImages';
             $saveImage = $file->move($image_path, $imageName);
 
             if ($saveImage) {
-                $place_id = Place::findOrNew($request->place_id);
-                // dd($place_id->id);
-                $image->place_id = $place_id->id;
+                $place = Place::find($request->place_id);
+
+                if (!$place) {
+                    return response()->json(['message' => 'Place not found'], 404);
+                }
+
+                $image->place_id = $place->id;
                 $image->image_path = '/images/updatedImages/' . $imageName;
                 $image->save();
 
@@ -95,58 +99,79 @@ class imagesController extends Controller
                     'image' => $image
                 ], 201);
             }
-            return response()->json(['Image not updated in DB'], 422);
-        } catch (\Exception $e) {
-            Log::error('Exception occurred' . $e->getMessage());
-            return response()->json(['message' => 'something happend while updating image']);
+            return response()->json(['message' => 'Failed to save image'], 422);
         }
-    }
 
-    public function deleteImage($id)
+        return response()->json(['message' => 'File not found in the request'], 404);
+    } catch (\Exception $e) {
+        Log::error('Exception occurred: ' . $e->getMessage());
+        return response()->json(['message' => 'Something happened while updating the image'], 500);
+    }
+}
+
+
+    public function deleteImage($images_id)
     {
         try {
-            $image = Image::findOrFail($id);
+            $image = Image::find($images_id);
+            if($image){
             $image->delete();
 
             return response()->json([
                 'message' => 'Image deleted successfully',
             ], 200);
+        }
+        return response()->json(['message' => 'image image not found']);
         } catch (\Exception $e) {
             Log::error('Exception occurred' . $e->getMessage());
             return response()->json(['message' => 'something happend while delete image']);
         }
     }
-    public function getAllImages(){
-       try{
-        $images = Image::all();
-        if ($images){
-            return response()->json(['images :'=> $images],201);
+    public function getAllImages()
+    {
+        try {
+            $images = Image::all();
+            if ($images) {
+                return response()->json(['images :' => $images], 201);
+            }
+            return response()->json(['no image found' => $images], 404);
+        } catch (\Exception $e) {
+            Log::error('error occured:' . $e->getMessage());
+            return response()->json(['message' => 'error occured while getting all images']);
         }
-        return response()->json(['no image found'=> $images],404);
-    
-    }catch (\Exception $e) {
-        Log::error('error occured:'. $e->getMessage());
-        return response()->json(['message'=> 'error occured while getting all images']);
     }
-    }
-    public function getImageForPlace($place_id){
-
-        try{
+    public function getImageForPlace($place_id)
+    {
+        try {
             $place = Place::find($place_id);
-            if ($place) {
-    
-            
-            $images = Image::find($place_id);
-            if ($images->place_id === $place_id ){
-                return response()->json([
-                    'place' =>$place->place_name,
-                    'images'=> $images],200);
+
+            if (!$place) {
+                return response()->json(['message' => 'Place not found'], 404);
+            }
+
+            $images = Image::where('place_id', $place_id)->get();
+
+            if ($images->isEmpty()) {
+                return response()->json(['message' => 'Images not found for the specified place'], 404);
+            }
+
+            $imageData = $images->map(function ($image) {
+                return [
+                    'image_id' => $image->id,
+                    'image_path' => $image->image_path,
+
+                ];
+            });
+
+            return response()->json([
+                'place' => [
+                    'place_name' => $place->place_name,
+                ],
+                'images' => $imageData,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error occurred: ' . $e->getMessage());
+            return response()->json(['message' => 'Error occurred while getting images for the place by ID'], 500);
         }
-        return response()->json(['message' =>'place not found'],404);
     }
-    }catch (\Exception $e) {
-        Log::error('error ocuured'. $e->getMessage());
-        return response()->json(['message'=> 'error occured while getting images for place by id'],501);
-    }
-}
 }
