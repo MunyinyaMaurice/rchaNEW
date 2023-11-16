@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('place_id');
             $table->string('self_guided_short_version');
             $table->string('short_eng_version_360_video');
             $table->string('short_french_version_360_video');
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->string('long_french_version_360_video');
             $table->string('long_kiny_version_360_video');
             $table->timestamps();
+            $table->foreign('place_id')->references('id')->on('places')->onDelete('cascade');
         });
     }
 
