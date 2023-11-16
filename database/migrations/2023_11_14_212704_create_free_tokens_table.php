@@ -13,8 +13,13 @@ return new class extends Migration
     {
         Schema::create('free_tokens', function (Blueprint $table) {
             $table->id();
+            $table->string('organisation_name');
+            $table->string('organisation_email');
+            $table->string('freeToken');
+            $table->timestamp('token_expires_at');
             $table->timestamps();
         });
+    
     }
 
     /**

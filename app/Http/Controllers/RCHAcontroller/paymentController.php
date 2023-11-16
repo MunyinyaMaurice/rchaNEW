@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\FreeToken;
 use Cohensive\OEmbed\Facades\OEmbed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -146,15 +147,15 @@ class paymentController extends Controller
             // $tokenExpiresAt = Carbon::now()->addMinutes(20);
             $tokenExpiresAt = Carbon::now()->addHours(24);
     
-            $token = new Token();
-            $token->paid_token = $paidToken;
-            $token->token_expires_at = $tokenExpiresAt;
-            $token->paid_link = $place->place_link . '/' . $paidToken;
-            $token->save();
+            $freetoken = new FreeToken();
+            $freetoken->paid_token = $paidToken;
+            $freetoken->token_expires_at = $tokenExpiresAt;
+            $freetoken->paid_link = $place->place_link . '/' . $paidToken;
+            $freetoken->save();
     
             return response()->json([
                 'message' => 'Paid link generated successfully!',
-                'freeLink' => $token->paid_link,
+                'freeLink' => $freetoken->paid_link,
                 'freeToken' => $paidToken,
                 'expires_in' => $tokenExpiresAt,
             ], 200);
