@@ -26,6 +26,8 @@ use App\Http\Controllers\RCHAcontroller\paymentController;
 use App\Http\Controllers\RCHAcontroller\CategoryController;
 use App\Http\Controllers\RCHAcontroller\feedbackController;
 use App\Http\Controllers\RCHAcontroller\paymentInfoExportController;
+use App\Http\Controllers\RCHAcontroller\VideoController;
+
 // use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 Auth::routes([
@@ -79,10 +81,13 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('/storeNewPlace', [placeController::class, 'storePlace'])->name('storeNewPlace');
         Route::get('/places', [placeController::class, 'getPlaces']);
         Route::get('/place/{id}', [placeController::class, 'getPlaceById']);
-        // Route::PUT('/updatePlaces/{id}', [placeController::class, 'updatePlace']);
         Route::put('/updatePlaces/{place_id}', [PlaceController::class, 'updatePlace'])->name('updatePlaces');
-
         Route::delete('/deletePlace/{place_id}', [placeController::class, 'deletePlace']);
+
+        /**     ROUTE FOR VIDEO LINKS */
+        Route::Post('/storeVideos', [VideoController::class,'storeVideos']);
+        Route::delete('/deleteVideoLink', [VideoController::class,'deleteVideoLink']);
+        Route::get('/getAllVideoForPlace', [VideoController::class,'getAllVideoForPlace']);
 
         /** ROUTE FOR GETFEATURED PLACES*/
         Route::get('/placeFeature/{place_status}', [placeController::class, 'placeFeature']);

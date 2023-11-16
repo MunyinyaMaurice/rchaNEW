@@ -16,7 +16,7 @@ class VideoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function storeVideos(Request $request)
     {
         // Validate and save video
         try {
