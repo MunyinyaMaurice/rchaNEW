@@ -11,21 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('videos', function (Blueprint $table) {
+        Schema::create('paid_videos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('place_id');
-            $table->string('self_guided_short_version');
-            $table->string('short_eng_version_360_video');
-            $table->string('short_french_version_360_video');
-            $table->string('short_kiny_version_360_video');
-
             $table->string('long_version_self_guided');
             $table->string('long_eng_version_360_video');
             $table->string('long_french_version_360_video');
             $table->string('long_kiny_version_360_video');
             $table->timestamps();
             $table->foreign('place_id')->references('id')->on('places')->onDelete('cascade');
-        });
+        });;
     }
 
     /**
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('videos');
+        Schema::dropIfExists('paid_videos');
     }
 };

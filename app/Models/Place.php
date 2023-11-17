@@ -17,8 +17,8 @@ class Place extends Model
         'place_status',
         'place_details',
         'category_id',
-        'place_preview_video',
-        'place_link',
+        // 'place_preview_video',
+        // 'place_link',
         'amount',
        
         

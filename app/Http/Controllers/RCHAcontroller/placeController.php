@@ -4,6 +4,8 @@ namespace App\Http\Controllers\RCHAcontroller;
 
 use App\Models\Image;
 use App\Models\Place;
+use App\Models\FreeVideos;
+use App\Models\PaidVideos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -26,9 +28,9 @@ class placeController extends Controller
                 'place_status' => 'required',
                 'place_details' => 'required',
                 'category_id' => 'required',
-                'place_preview_video' => 'required',
-                'place_link' => 'required',
-                'amount'=> 'required',
+                // 'place_preview_video' => 'required',
+                // 'place_link' => 'required',
+                'amount' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -94,9 +96,9 @@ class placeController extends Controller
                 'place_location' => 'required',
                 'place_status' => 'required',
                 'place_details' => 'required',
-                'place_preview_video' => 'required',
-                'place_link' => 'required',
-                'amount'=> 'required',
+                // 'place_preview_video' => 'required',
+                // 'place_link' => 'required',
+                'amount' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -140,28 +142,94 @@ class placeController extends Controller
             return response()->json(['message' => 'something happened while Deleting place'], 501);
         }
     }
+
     public function placeFeature($place_status)
     {
         try {
             $featuredPlaces = Place::where('place_status', $place_status)->get();
-
-            if ($featuredPlaces->count()) {
+    
+            if ($featuredPlaces->count() > 0) {
                 $placeData = [];
-
+    
                 foreach ($featuredPlaces as $featuredPlace) {
+                    // Retrieve images for the current place
                     $placeImages = Image::where('place_id', $featuredPlace->id)->pluck('image_path')->toArray();
+    
+                    // Retrieve free videos for the current place
+                    $placeFeeVideos = FreeVideos::select(
+                        'self_guided_short_version',
+                        'short_eng_version_360_video',
+                        'short_french_version_360_video',
+                        'short_kiny_version_360_video'
+                    )->where('place_id', $featuredPlace->id)->first();
+    
+                    // Check if free videos are found
+                    $placeFreeVideos = $placeFeeVideos ? $placeFeeVideos->toArray() : [];
+    
+                    // Retrieve paid videos for the current place
+                    $placePaidVideos = PaidVideos::select(
+                        'long_version_self_guided',
+                        'long_eng_version_360_video',
+                        'long_french_version_360_video',
+                        'long_kiny_version_360_video'
+                    )->where('place_id', $featuredPlace->id)->first();
+    
+                    // Check if paid videos are found
+                    $placePaidVideos = $placePaidVideos ? $placePaidVideos->toArray() : [];
+    
+                    // Assign images and videos to the current place object
                     $featuredPlace->images = $placeImages;
-                    //dd($featuredPlace);
+                    $featuredPlace->free_videos = $placeFreeVideos;
+                    $featuredPlace->paid_videos = $placePaidVideos;
+    
+                    // Add the current place to the placeData array
                     $placeData[] = $featuredPlace;
                 }
             } else {
                 return response()->json(['message' => 'No featured places found'], 201);
             }
-
+    
             return response()->json(['places' => $placeData], 201);
         } catch (\Exception $e) {
-            Log::error('error occurred: ' . $e->getMessage());
-            return response()->json(['message' => 'something happened while trying to get featured places'], 500);
+            Log::error('Error occurred: ' . $e->getMessage());
+            return response()->json(['message' => 'Something happened while trying to get featured places'], 500);
         }
     }
+    
+
+    // public function placeFeature($place_status)
+    // {
+    //     try {
+    //         $featuredPlaces = Place::where('place_status', $place_status)->get();
+
+    //         if ($featuredPlaces->count()) {
+    //             $placeData = [];
+
+    //             foreach ($featuredPlaces as $featuredPlace) {
+    //                 $placeImages = Image::where('place_id', $featuredPlace->id)->pluck('image_path')->toArray();
+    //                 $placeVideos = Videos::where('place_id', $featuredPlace->id)->pluck( 
+    //                 'self_guided_short_version',
+    //                 'short_eng_version_360_video',
+    //                 'short_french_version_360_video',
+    //                 'short_kiny_version_360_video',
+
+    //                 'long_version_self_guided',
+    //                 'long_eng_version_360_video',
+    //                 'long_french_version_360_video',
+    //                 'long_kiny_version_360_video')->toArray();
+    //                 $featuredPlace->images = $placeImages;
+    //                 $featuredPlace->videos = $placeVideos;
+    //                 //dd($featuredPlace);
+    //                 $placeData[] = $featuredPlace;
+    //             }
+    //         } else {
+    //             return response()->json(['message' => 'No featured places found'], 201);
+    //         }
+
+    //         return response()->json(['places' => $placeData], 201);
+    //     } catch (\Exception $e) {
+    //         Log::error('error occurred: ' . $e->getMessage());
+    //         return response()->json(['message' => 'something happened while trying to get featured places'], 500);
+    //     }
+    // }
 }

@@ -30,6 +30,69 @@ use Maatwebsite\Excel\Facades\Excel;
 class paymentController extends Controller
 {
   
+    // public function generatePaidLink($place_id)
+    // {
+    //     try {
+    //         $user = JWTAuth::parseToken()->authenticate(); // Get the authenticated user using JWT
+    //         $place = Place::find($place_id);
+    //         if (!$place) {
+    //             return response()->json([
+    //                 'message' => 'Place not found!',
+    //             ], 404);
+    //         }
+    //         // Search for the last payment record made by the user for the specific place
+    //         $lastPayment = Payment::where('user_id', $user->id)
+    //         ->where('place_id', $place_id)
+    //         ->latest()
+    //         ->first();
+
+             
+    //         if ($lastPayment && !$lastPayment->token_id) {
+             
+             
+    //         $paidToken = Str::random(32);
+    //         // Set the token expiration time to 1 minutes from now
+    //         // $tokenExpiresAt = Carbon::now()->addMinutes(20);
+    //         $tokenExpiresAt = Carbon::now()->addHours(24);
+
+    //         $token = new Token();
+    //         $token->paid_token = $paidToken;
+    //         $token->token_expires_at = $tokenExpiresAt;
+    //         $token->paid_link = $place->place_link . '/' . $paidToken;
+    //         $token->save();
+
+    //         // If a payment record is found and token_id is null, update the token_id
+    //         $lastPayment->token_id = $token->id;
+    //         $lastPayment->save();
+
+    //         //send paid token to user
+    //         if (isset($paidToken)) {
+    //             Mail::to($user->email)
+    //                 ->send(new \App\Mail\sendVideoLink($user, $paidToken));
+
+
+    //             //return redirect(url('/http://localhost:3000/dashboard/watchVideo/{{$paidToken}}'));
+
+    //             // return 'Email sent successfully!';
+    //         }
+            
+    //         return response()->json([
+    //             'message' => 'Paid link generated successfully! sent to user email!',
+    //             'paidLink' => $token->paid_link,
+    //             'paidToken' => $paidToken,
+    //             'expires_in' => $tokenExpiresAt,
+    //             // 'token' => $token->id,
+
+    //         ], 200);
+    //     }
+    //     } catch (\Exception $e) {
+    //         Log::error('Exception occurred: ' . $e->getMessage());
+    //         return response()->json([
+    //             'message' => 'An error occurred while generating the paid link.',
+    //         ], 500);
+    //     }
+    // }
+
     public function generatePaidLink($place_id)
     {
         try {

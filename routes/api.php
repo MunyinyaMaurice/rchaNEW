@@ -85,7 +85,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::delete('/deletePlace/{place_id}', [placeController::class, 'deletePlace']);
 
         /**     ROUTE FOR VIDEO LINKS */
-        Route::Post('/storeVideos', [VideoController::class,'storeVideos']);
+        Route::Post('/storeFreeVideos', [VideoController::class,'storeFreeVideos']);
+        Route::Post('/storePaidVideos', [VideoController::class,'storePaidVideos']);
         Route::delete('/deleteVideoLink', [VideoController::class,'deleteVideoLink']);
         Route::get('/getAllVideoForPlace', [VideoController::class,'getAllVideoForPlace']);
 
