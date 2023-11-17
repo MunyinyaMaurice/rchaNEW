@@ -20,6 +20,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\FreeToken;
+use App\Models\PaidVideos;
 use Cohensive\OEmbed\Facades\OEmbed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -118,10 +119,18 @@ class paymentController extends Controller
             // $tokenExpiresAt = Carbon::now()->addMinutes(20);
             $tokenExpiresAt = Carbon::now()->addHours(24);
 
+            //Get PAid Videos
+            $paidVideos = PaidVideos::where('place_id', $place_id)->first();
+                if(!$paidVideos){
+                    return response()->json(['message' =>'Paid videos are not found'] ,404);
+                }
             $token = new Token();
             $token->paid_token = $paidToken;
             $token->token_expires_at = $tokenExpiresAt;
-            $token->paid_link = $place->place_link . '/' . $paidToken;
+            $token->long_version_self_guided = $paidVideos->long_version_self_guided . '/' . $paidToken;
+            $token->long_eng_version_360_video = $paidVideos->long_eng_version_360_video . '/' . $paidToken;
+            $token->long_french_version_360_video = $paidVideos->long_french_version_360_video . '/' . $paidToken;
+            $token->long_kiny_version_360_video = $paidVideos->long_kiny_version_360_video . '/' . $paidToken;
             $token->save();
 
             // If a payment record is found and token_id is null, update the token_id
@@ -141,7 +150,10 @@ class paymentController extends Controller
             
             return response()->json([
                 'message' => 'Paid link generated successfully! sent to user email!',
-                'paidLink' => $token->paid_link,
+                'long_version_self_guided' => $token->long_version_self_guided,
+                'long_eng_version_360_video' => $token->long_eng_version_360_video,
+                'long_french_version_360_video' => $token->long_french_version_360_video,
+                'long_kiny_version_360_video' => $token->long_kiny_version_360_video,
                 'paidToken' => $paidToken,
                 'expires_in' => $tokenExpiresAt,
                 // 'token' => $token->id,
