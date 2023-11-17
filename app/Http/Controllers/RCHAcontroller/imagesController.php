@@ -110,10 +110,10 @@ class imagesController extends Controller
 }
 
 
-    public function deleteImage($images_id)
+    public function deleteImage($image_id)
     {
         try {
-            $image = Image::find($images_id);
+            $image = Image::find($image_id);
             if($image){
             $image->delete();
 
