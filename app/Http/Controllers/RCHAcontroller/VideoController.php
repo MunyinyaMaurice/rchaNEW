@@ -127,6 +127,61 @@ class VideoController extends Controller
            }
 
     }
+
+    public function updateFreeVideos(Request $request,$place_id)
+    {
+      // Validate and update video
+      try {
+        $FreeVideos = FreeVideos::where('place_id',$place_id);
+        if(!$FreeVideos)
+       { 
+        return response()->json(['message' => 'This place do not have Free videos!']);
+        }
+        $validator = Validator::make($request->all(), [
+                'place_id' => 'required|exists:places,id',
+                'self_guided_short_version' => 'required|string',
+                'short_eng_version_360_video' => 'required|string',
+                'short_french_version_360_video' => 'required|string',
+                'short_kiny_version_360_video' => 'required|string',
+           
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+        // Update paidVideos
+        $FreeVideos->update([
+        // 'place_id' => 'required|exists:places,id',
+       
+                'self_guided_short_version' => 'required|string',
+                'short_eng_version_360_video' => 'required|string',
+                'short_french_version_360_video' => 'required|string',
+                'short_kiny_version_360_video' => 'required|string',
+        ]);
+        return response()->json([
+         'message' => 'Free Video Updated successfully',
+         'data' => $FreeVideos], 201);
+    } catch (\Exception $e) {
+        Log::error($e->getMessage());
+        return response()->json([ 'message' => 'Something happed while Updating Free Videos!'], 501);
+    }
+    }
+    public function deleteFreeVideos($place_id){
+        try {
+            $FreeVideos = FreeVideos::where('place_id',$place_id);
+            if(!$FreeVideos)
+           { 
+            return response()->json(['message' => 'This place do not have Free videos!']);
+            }
+            $FreeVideos ->delete();
+             return response()->json([
+                'message' => 'Free Video Deleted successfully'],201);
+           } catch (\Exception $e) {
+               Log::error($e->getMessage());
+               return response()->json([ 'message' => 'Something happed while Deleting Free Videos!'], 501);
+           }
+
+    }
 }
 
 
