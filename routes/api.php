@@ -88,8 +88,11 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         /**     ROUTE FOR VIDEO LINKS */
         Route::Post('/storeFreeVideos', [VideoController::class,'storeFreeVideos']);
         Route::Post('/storePaidVideos', [VideoController::class,'storePaidVideos']);
-        Route::delete('/deleteVideoLink', [VideoController::class,'deleteVideoLink']);
-        Route::get('/getAllVideoForPlace', [VideoController::class,'getAllVideoForPlace']);
+        Route::put('/updatePaidVideos/{place_id}', [VideoController::class,'updatePaidVideos']);
+        Route::put('/updateFreeVideos/{place_id}', [VideoController::class,'updateFreeVideos']);
+        Route::delete('/deletePaidVideos/{place_id}', [VideoController::class,'deletePaidVideos']);
+        Route::delete('/deleteFreeVideos/{place_id}', [VideoController::class,'deleteFreeVideos']);
+
 
         /** ROUTE FOR GETFEATURED PLACES*/
         Route::get('/placeFeature/{place_status}', [placeController::class, 'placeFeature']);
