@@ -4,8 +4,8 @@
 {{-- @component('mail::button', ['url' => $paidLink]) --}}
 {{-- @component('mail::button', ['url' => url("/api/auth/videoView/{$paidToken}")]) --}}
 
-{{-- @component('mail::button', ['url' => 'http://localhost:3000/dashboard/videoView/' . $paidToken]) --}}
-@component('mail::button', ['url' => url("/api/auth/videoView/{$paidToken}")])
+@component('mail::button', ['url' => 'http://localhost:3000/dashboard/placevideo/' . $paidToken])
+{{-- @component('mail::button', ['url' => url("/api/auth/videoView/{$paidToken}")]) --}}
 
 Click here to watch
 @endcomponent

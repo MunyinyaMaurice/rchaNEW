@@ -2,7 +2,7 @@
 # Welcome 
 # Here is Your Free Token valid for 24 hours from now
 
-@component('mail::button', ['url' => url("/api/auth/videoView/{$paidToken}")])
+@component('mail::button', ['url' => url("/api/auth/videoView/{$FreeToken}")])
 Click here to watch
 @endcomponent
 

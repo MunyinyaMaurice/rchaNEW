@@ -25,6 +25,7 @@ use App\Http\Controllers\paymentGatways\flutterController;
 use App\Http\Controllers\RCHAcontroller\paymentController;
 use App\Http\Controllers\RCHAcontroller\CategoryController;
 use App\Http\Controllers\RCHAcontroller\feedbackController;
+use App\Http\Controllers\RCHAcontroller\FreeTokenController;
 use App\Http\Controllers\RCHAcontroller\paymentInfoExportController;
 use App\Http\Controllers\RCHAcontroller\VideoController;
 
@@ -142,10 +143,13 @@ Route::get('/infoBeforePayment/{place_id}', [paymentController::class,'infoBefor
     Route::get('/export-payment-info', [paymentController::class, 'exportPaymentInfo']);
 
     /** Generate paid and free Token and validate  */
-
+    /** GENERATE PAID LINK */
     Route::post('/generatePaidLink/{place_id}', [paymentController::class, 'generatePaidLink']);
-    //Route::post('/generate-paid-link', [PaymentController::class, 'generatePaidLink']);
+    /** GENERATE FREE LINK */
+    Route::post('/generateFreeLink/{place_id}', [FreeTokenController::class, 'generateFreeLink']);
+    /** VALIDATE PAID AND FREE LINK */
     Route::get('/videoView/{paidToken}', [paymentController::class, 'validatePaidToken']);
+   
 
     /** GETTING FEEDBACK FROM USER */
     Route::post('/feedback', [feedbackController::class, 'feedback']);
@@ -228,18 +232,18 @@ Route::get('/infoBeforePayment/{place_id}', [paymentController::class,'infoBefor
 
     /** SENDING FREE TOKEN TO CUSTOM EMAIL */
 
-    Route::post('/sendFreeToken', function (Request $request) {
-        $paidToken = $request->input('paidToken');
-        $recipientEmail = $request->input('email');
-        try {
-            Mail::to($recipientEmail)
-                ->send(new sendFreeToken($paidToken));
-            return 'Email sent successfully!';
-        } catch (\Exception $e) {
-            Log::error('Exception occurred: ' . $e->getMessage());
-            return response()->json(['message' => 'An error occurred while sending the free token.'], 500);
-        }
-    });
+    // Route::post('/sendFreeToken', function (Request $request) {
+    //     $paidToken = $request->input('paidToken');
+    //     $recipientEmail = $request->input('email');
+    //     try {
+    //         Mail::to($recipientEmail)
+    //             ->send(new sendFreeToken($paidToken));
+    //         return 'Email sent successfully!';
+    //     } catch (\Exception $e) {
+    //         Log::error('Exception occurred: ' . $e->getMessage());
+    //         return response()->json(['message' => 'An error occurred while sending the free token.'], 500);
+    //     }
+    // });
 
 
     Route::get('/home', function () {

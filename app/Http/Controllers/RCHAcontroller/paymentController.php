@@ -6,21 +6,23 @@ use view;
 use session;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Image;
 use App\Models\Place;
-use App\Models\Token;
 // use Cohensive\OEmbed\OEmbed;
+use App\Models\Token;
 use App\Models\Payment;
+use App\Models\FreeToken;
+// use App\Exports\PaymentInfoExport;
+use App\Models\FreeVideos;
+use App\Models\PaidVideos;
 use Cohensive\OEmbed\Embed;
 use Illuminate\Support\Str;
-// use App\Exports\PaymentInfoExport;
 use Illuminate\Http\Request;
 use App\Exports\PaymentInfoExport;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\FreeToken;
-use App\Models\PaidVideos;
 use Cohensive\OEmbed\Facades\OEmbed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -31,69 +33,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class paymentController extends Controller
 {
   
-    // public function generatePaidLink($place_id)
-    // {
-    //     try {
-    //         $user = JWTAuth::parseToken()->authenticate(); // Get the authenticated user using JWT
-    //         $place = Place::find($place_id);
-    //         if (!$place) {
-    //             return response()->json([
-    //                 'message' => 'Place not found!',
-    //             ], 404);
-    //         }
-    //         // Search for the last payment record made by the user for the specific place
-    //         $lastPayment = Payment::where('user_id', $user->id)
-    //         ->where('place_id', $place_id)
-    //         ->latest()
-    //         ->first();
-
-             
-    //         if ($lastPayment && !$lastPayment->token_id) {
-             
-             
-    //         $paidToken = Str::random(32);
-    //         // Set the token expiration time to 1 minutes from now
-    //         // $tokenExpiresAt = Carbon::now()->addMinutes(20);
-    //         $tokenExpiresAt = Carbon::now()->addHours(24);
-
-    //         $token = new Token();
-    //         $token->paid_token = $paidToken;
-    //         $token->token_expires_at = $tokenExpiresAt;
-    //         $token->paid_link = $place->place_link . '/' . $paidToken;
-    //         $token->save();
-
-    //         // If a payment record is found and token_id is null, update the token_id
-    //         $lastPayment->token_id = $token->id;
-    //         $lastPayment->save();
-
-    //         //send paid token to user
-    //         if (isset($paidToken)) {
-    //             Mail::to($user->email)
-    //                 ->send(new \App\Mail\sendVideoLink($user, $paidToken));
-
-
-    //             //return redirect(url('/http://localhost:3000/dashboard/watchVideo/{{$paidToken}}'));
-
-    //             // return 'Email sent successfully!';
-    //         }
-            
-    //         return response()->json([
-    //             'message' => 'Paid link generated successfully! sent to user email!',
-    //             'paidLink' => $token->paid_link,
-    //             'paidToken' => $paidToken,
-    //             'expires_in' => $tokenExpiresAt,
-    //             // 'token' => $token->id,
-
-    //         ], 200);
-    //     }
-    //     } catch (\Exception $e) {
-    //         Log::error('Exception occurred: ' . $e->getMessage());
-    //         return response()->json([
-    //             'message' => 'An error occurred while generating the paid link.',
-    //         ], 500);
-    //     }
-    // }
-
+    
     public function generatePaidLink($place_id)
     {
         try {
@@ -142,23 +82,26 @@ class paymentController extends Controller
                 Mail::to($user->email)
                     ->send(new \App\Mail\sendVideoLink($user, $paidToken));
 
-
+            }
                 //return redirect(url('/http://localhost:3000/dashboard/watchVideo/{{$paidToken}}'));
 
                 // return 'Email sent successfully!';
-            }
             
-            return response()->json([
-                'message' => 'Paid link generated successfully! sent to user email!',
-                'long_version_self_guided' => $token->long_version_self_guided,
-                'long_eng_version_360_video' => $token->long_eng_version_360_video,
-                'long_french_version_360_video' => $token->long_french_version_360_video,
-                'long_kiny_version_360_video' => $token->long_kiny_version_360_video,
-                'paidToken' => $paidToken,
-                'expires_in' => $tokenExpiresAt,
-                // 'token' => $token->id,
+                $validatePaidToken = app('App\Http\Controllers\RCHAcontroller\paymentController')->validatePaidToken($paidToken);
 
-            ], 200);
+                Log::info('validatePlaceData :' . $validatePaidToken);
+                return response()->json(['data',$validatePaidToken]);
+            // return response()->json([
+            //     'message' => 'Paid link generated successfully! sent to user email!',
+            //     'long_version_self_guided' => $token->long_version_self_guided,
+            //     'long_eng_version_360_video' => $token->long_eng_version_360_video,
+            //     'long_french_version_360_video' => $token->long_french_version_360_video,
+            //     'long_kiny_version_360_video' => $token->long_kiny_version_360_video,
+            //     'paidToken' => $paidToken,
+            //     'expires_in' => $tokenExpiresAt,
+            //     // 'token' => $token->id,
+
+            // ], 200);
         }
         } catch (\Exception $e) {
             Log::error('Exception occurred: ' . $e->getMessage());
@@ -174,30 +117,158 @@ class paymentController extends Controller
         try {
             // Get the token from the database
             $token = Token::where('paid_token', $paidToken)->first();
-
+            $freeToken = FreeToken::where('freetoken', $paidToken)->first();
             // If the token is not found, return an error response
-            if (!$token) {
-                return response()->json(['message' => 'Invalid token'], 422);
-            }
-
+            if ($token) {
             // Get the current time
             $now = Carbon::now();
-
             // Get the token expiration time
             $tokenExpiresAt = Carbon::parse($token->token_expires_at);
-
             // Check if the token is expired
             if ($now->isAfter($tokenExpiresAt)) {
                 return response()->json(['message' => 'Token has expired'], 422);
             }
-            //return response()->json(['token' =>$token->paid_link], 201);
-            // return view('videoView')->with('token', $token->paid_link);
-            // return redirect('https://inteko.netlify.app/dashboard/watchVideo/' . $token->paid_link);
+            $tokenId= $token->id;
+            $payment=Payment::where('token_id',$tokenId)->first();
+            if (!$payment){
+                return response()->json(['message' =>'not payment found for this place id'],404);
+            }
+            /** GET PAID PLACE DATA */
+            $placeId=$payment->place_id;
+           // dd($placeId);
+            $paidPlaces = Place::where('id', $placeId)->get();
+           // dd($paidPlaces);
+            if ($paidPlaces->count() > 0) {
+                $placeData = [];
+    
+                foreach ($paidPlaces as $paidPlace) {
+                    // Retrieve images for the current place
+                    $placeImages = Image::where('place_id', $placeId)->pluck('image_path')->toArray();
+                    //dd($placeImages);
+                    // Retrieve free videos for the current place
+                    $placeFeeVideos = FreeVideos::select(
+                        'self_guided_short_version',
+                        'short_eng_version_360_video',
+                        'short_french_version_360_video',
+                        'short_kiny_version_360_video'
+                    )->where('place_id', $placeId)->first();
+    
+                    // Check if free videos are found
+                    $placeFreeVideos = $placeFeeVideos ? $placeFeeVideos->toArray() : [];
+    
+                    // Retrieve paid videos for the current place
+                    $placePaidVideos = PaidVideos::select(
+                        'long_version_self_guided',
+                        'long_eng_version_360_video',
+                        'long_french_version_360_video',
+                        'long_kiny_version_360_video'
+                    )->where('place_id', $placeId)->first();
+    
+                    // Check if paid videos are found
+                    $placePaidVideos = $placePaidVideos ? $placePaidVideos->toArray() : [];
+    
+                    // Assign images and videos to the current place object
+                    $paidPlace->images = $placeImages;
+                    $paidPlace->free_videos = $placeFreeVideos;
+                    $paidPlace->paid_videos = $placePaidVideos;
+                    $paidPlace->token_expires_at = $tokenExpiresAt;
 
-            //Construct the URL for redirect
-            $redirectUrl = $token->paid_link;
-            // Redirect away to the stored external URL
-            return redirect()->away($redirectUrl);
+    
+                    // Add the current place to the placeData array
+                    $placeData[] = $paidPlace;
+                }
+            } else {
+                return response()->json(['message' => 'No paid places found'], 404);
+            }
+    
+            return response()->json(['places' => $placeData], 201);
+           
+
+
+            // when token still valid
+            // $redirectUrl = "http://localhost:3000/dashboard/placevideo/{$paidToken}";
+            // return redirect($redirectUrl);
+            // Call the generatePaidLink method with a request object
+           
+            // return response()->json([
+            //     'message' => 'Paid link is valid !',
+            //     'long_version_self_guided' => $token->long_version_self_guided,
+            //     'long_eng_version_360_video' => $token->long_eng_version_360_video,
+            //     'long_french_version_360_video' => $token->long_french_version_360_video,
+            //     'long_kiny_version_360_video' => $token->long_kiny_version_360_video,
+            //     // 'paidToken' => $paidToken,
+            //     'expires_in' => $tokenExpiresAt,],201);
+        }else
+           if($freeToken)     // Validating Free token
+            {
+                $now = Carbon::now();
+                // Get the token expiration time
+                $tokenExpiresAt = Carbon::parse($freeToken->token_expires_at);
+                // Check if the token is expired
+                if ($now->isAfter($tokenExpiresAt)) {
+                    return response()->json(['message' => 'Token has expired'], 422);
+                }
+                $tokenId= $freeToken->id;
+            $payment=Payment::where('token_id',$tokenId)->first();
+            if (!$payment){
+                return response()->json(['message' =>'not payment found for this place id'],404);
+            }
+            /** GET PAID PLACE DATA */
+            $placeId=$payment->place_id;
+           // dd($placeId);
+            $paidPlaces = Place::where('id', $placeId)->get();
+           // dd($paidPlaces);
+            if ($paidPlaces->count() > 0) {
+                $placeData = [];
+    
+                foreach ($paidPlaces as $paidPlace) {
+                    // Retrieve images for the current place
+                    $placeImages = Image::where('place_id', $placeId)->pluck('image_path')->toArray();
+                    //dd($placeImages);
+                    // Retrieve free videos for the current place
+                    $placeFeeVideos = FreeVideos::select(
+                        'self_guided_short_version',
+                        'short_eng_version_360_video',
+                        'short_french_version_360_video',
+                        'short_kiny_version_360_video'
+                    )->where('place_id', $placeId)->first();
+    
+                    // Check if free videos are found
+                    $placeFreeVideos = $placeFeeVideos ? $placeFeeVideos->toArray() : [];
+    
+                    // Retrieve paid videos for the current place
+                    $placePaidVideos = PaidVideos::select(
+                        'long_version_self_guided',
+                        'long_eng_version_360_video',
+                        'long_french_version_360_video',
+                        'long_kiny_version_360_video'
+                    )->where('place_id', $placeId)->first();
+    
+                    // Check if paid videos are found
+                    $placePaidVideos = $placePaidVideos ? $placePaidVideos->toArray() : [];
+    
+                    // Assign images and videos to the current place object
+                    $paidPlace->images = $placeImages;
+                    $paidPlace->free_videos = $placeFreeVideos;
+                    $paidPlace->paid_videos = $placePaidVideos;
+                    $paidPlace->token_expires_at = $tokenExpiresAt;
+    
+                    // Add the current place to the placeData array
+                    $placeData[] = $paidPlace;
+                }
+            } else {
+                return response()->json(['message' => 'No paid places found'], 404);
+            }
+    
+            return response()->json(['places' => $placeData], 201);
+           
+
+
+            }else{
+            return response()->json(['message' => 'Invalid token'], 422);
+        }
+        
+        
         } catch (\Exception $e) {
             Log::error('Exception occurred: ' . $e->getMessage());
             return response()->json([
@@ -205,43 +276,7 @@ class paymentController extends Controller
             ], 500);
         }
     }
-    //this function will generate free token in admin and this token will be sent to orgisan email
-    public function generateFreeLink(Request $request)
-    {
-        try {
-            $user = JWTAuth::parseToken()->authenticate(); // Get the authenticated user using JWT
-            $place = Place::find($request->get('place_id'));
-            if (!$place) {
-                return response()->json([
-                    'message' => 'Place not found!',
-                ], 404);
-            }
-    
-            $paidToken = Str::random(32);
-            // Set the token expiration time to 1 minutes from now
-            // $tokenExpiresAt = Carbon::now()->addMinutes(20);
-            $tokenExpiresAt = Carbon::now()->addHours(24);
-    
-            $freetoken = new FreeToken();
-            $freetoken->paid_token = $paidToken;
-            $freetoken->token_expires_at = $tokenExpiresAt;
-            $freetoken->paid_link = $place->place_link . '/' . $paidToken;
-            $freetoken->save();
-    
-            return response()->json([
-                'message' => 'Paid link generated successfully!',
-                'freeLink' => $freetoken->paid_link,
-                'freeToken' => $paidToken,
-                'expires_in' => $tokenExpiresAt,
-            ], 200);
-        } catch (\Exception $e) {
-            Log::error('Exception occurred: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'An error occurred while generating the paid link.',
-            ], 500);
-        }
-    }
-    
+   
 
     public function payment($place_id,$user_id)
     {

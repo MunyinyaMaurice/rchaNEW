@@ -10,11 +10,11 @@ class sendFreeToken extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private $paidToken;
+    private $FreeToken;
 
-    public function __construct($paidToken)
+    public function __construct($FreeToken)
     {
-        $this->paidToken = $paidToken;
+        $this->FreeToken = $FreeToken;
     }
 
     public function build()
@@ -22,7 +22,7 @@ class sendFreeToken extends Mailable
         return $this
             ->subject('Welcome to RCHA site')
             ->markdown('sendVideoLink.sendFreeToken', [
-                'paidToken' => $this->paidToken,
+                'FreeToken' => $this->FreeToken,
             ]);
     }
 }

@@ -167,7 +167,7 @@ class placeController extends Controller
                     $placeFreeVideos = $placeFeeVideos ? $placeFeeVideos->toArray() : [];
     
                     // Retrieve paid videos for the current place
-                    $placePaidVideos = PaidVideos::select(
+                   /* $placePaidVideos = PaidVideos::select(
                         'long_version_self_guided',
                         'long_eng_version_360_video',
                         'long_french_version_360_video',
@@ -175,18 +175,18 @@ class placeController extends Controller
                     )->where('place_id', $featuredPlace->id)->first();
     
                     // Check if paid videos are found
-                    $placePaidVideos = $placePaidVideos ? $placePaidVideos->toArray() : [];
+                    $placePaidVideos = $placePaidVideos ? $placePaidVideos->toArray() : [];*/
     
                     // Assign images and videos to the current place object
                     $featuredPlace->images = $placeImages;
                     $featuredPlace->free_videos = $placeFreeVideos;
-                    $featuredPlace->paid_videos = $placePaidVideos;
+                    // $featuredPlace->paid_videos = $placePaidVideos;
     
                     // Add the current place to the placeData array
                     $placeData[] = $featuredPlace;
                 }
             } else {
-                return response()->json(['message' => 'No featured places found'], 201);
+                return response()->json(['message' => 'No featured places found'], 404);
             }
     
             return response()->json(['places' => $placeData], 201);
