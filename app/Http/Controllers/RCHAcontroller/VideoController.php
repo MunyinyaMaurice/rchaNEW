@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\RCHAcontroller;
 
 // use App\Models\Videos;
+use App\Models\Place;
 use App\Models\FreeVideos;
+use App\Models\PaidVideos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\PaidVideos;
 use Illuminate\Support\Facades\Validator;
 
 class VideoController extends Controller
@@ -73,7 +74,47 @@ class VideoController extends Controller
             return response()->json([ 'message' => 'Something happed while saving Paid Videos!'], 501);
         }
     }
-}
+    public function updatePaidVideos(Request $request,$place_id)
+    {
+      // Validate and save video
+      try {
+        $PaidVideos = PaidVideos::where('place_id',$place_id);
+        if(!$PaidVideos)
+       { 
+        return response()->json(['message' => 'This place do not have Paid videos!']);
+        }
+        $validator = Validator::make($request->all(), [
+            'place_id' => 'required|exists:places,id',
+            'long_version_self_guided' => 'required|string',
+            'long_eng_version_360_video' => 'required|string',
+            'long_french_version_360_video' => 'required|string',
+            'long_kiny_version_360_video' => 'required|string',
+           
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+        // Update paidVideos
+        $PaidVideos->update([
+        // 'place_id' => 'required|exists:places,id',
+        'long_version_self_guided' => 'required|string',
+        'long_eng_version_360_video' => 'required|string',
+        'long_french_version_360_video' => 'required|string',
+        'long_kiny_version_360_video' => 'required|string',
+        ]);
+        return response()->json([
+         'message' => 'Paid Video Updated successfully',
+         'data' => $PaidVideos], 201);
+    } catch (\Exception $e) {
+        Log::error($e->getMessage());
+        return response()->json([ 'message' => 'Something happed while Updating Paid Videos!'], 501);
+    }
+    }
+    public function deletePaidVideos($place_id){
+        
+
+    }
+}
 
 
