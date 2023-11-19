@@ -76,7 +76,7 @@ class VideoController extends Controller
     }
     public function updatePaidVideos(Request $request,$place_id)
     {
-      // Validate and save video
+      // Validate and update video
       try {
         $PaidVideos = PaidVideos::where('place_id',$place_id);
         if(!$PaidVideos)
@@ -112,7 +112,19 @@ class VideoController extends Controller
     }
     }
     public function deletePaidVideos($place_id){
-        
+        try {
+            $PaidVideos = PaidVideos::where('place_id',$place_id);
+            if(!$PaidVideos)
+           { 
+            return response()->json(['message' => 'This place do not have Paid videos!']);
+            }
+            $PaidVideos ->delete();
+             return response()->json([
+                'message' => 'Paid Video Deleted successfully'],201);
+           } catch (\Exception $e) {
+               Log::error($e->getMessage());
+               return response()->json([ 'message' => 'Something happed while Updating Paid Videos!'], 501);
+           }
 
     }
 }
