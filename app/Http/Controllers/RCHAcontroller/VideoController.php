@@ -182,6 +182,36 @@ class VideoController extends Controller
            }
 
     }
+    public function getPaidVideosForPlace($place_id){
+        try {
+            $PaidVideos = PaidVideos::where('place_id',$place_id);
+            if(!$PaidVideos)
+           { 
+            return response()->json(['message' => 'This place do not have Paid videos!']);
+            }
+             return response()->json([
+                'PaidVideos' => $PaidVideos],201);
+           } catch (\Exception $e) {
+               Log::error($e->getMessage());
+               return response()->json([ 'message' => 'Something happed while getting Paid Videos For Place chosen!'], 501);
+           }
+
+    }
+    public function getFreeVideosForPlace($place_id){
+        try {
+            $FreeVideos = FreeVideos::where('place_id',$place_id);
+            if(!$FreeVideos)
+           { 
+            return response()->json(['message' => 'This place do not have Free videos!']);
+            }
+             return response()->json([
+                'FreeVideos' => $FreeVideos],201);
+           } catch (\Exception $e) {
+               Log::error($e->getMessage());
+               return response()->json([ 'message' => 'Something happed while getting Free Videos For Place chosen!'], 501);
+           }
+
+    }
 }
 
 

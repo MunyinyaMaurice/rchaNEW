@@ -92,6 +92,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::put('/updateFreeVideos/{place_id}', [VideoController::class,'updateFreeVideos']);
         Route::delete('/deletePaidVideos/{place_id}', [VideoController::class,'deletePaidVideos']);
         Route::delete('/deleteFreeVideos/{place_id}', [VideoController::class,'deleteFreeVideos']);
+        Route::get('/getPaidVideosForPlace/{place_id}', [VideoController::class,'getPaidVideosForPlace']);
+        Route::get('/getFreeVideosForPlace/{place_id}', [VideoController::class,'getFreeVideosForPlace']);
 
 
         /** ROUTE FOR GETFEATURED PLACES*/
