@@ -95,6 +95,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('/getPaidVideosForPlace/{place_id}', [VideoController::class,'getPaidVideosForPlace']);
         Route::get('/getFreeVideosForPlace/{place_id}', [VideoController::class,'getFreeVideosForPlace']);
 
+        // Route::get('/getAllFreeVideosForPlaces', [VideoController::class,'getAllFreeVideosForPlaces']);
 
         /** ROUTE FOR GETFEATURED PLACES*/
         Route::get('/placeFeature/{place_status}', [placeController::class, 'placeFeature']);

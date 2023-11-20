@@ -172,6 +172,7 @@ class paymentController extends Controller
                     $paidPlace->free_videos = $placeFreeVideos;
                     $paidPlace->paid_videos = $placePaidVideos;
                     $paidPlace->token_expires_at = $tokenExpiresAt;
+                    $paidPlace->paidToken = $paidToken;
 
     
                     // Add the current place to the placeData array
@@ -252,6 +253,7 @@ class paymentController extends Controller
                     $paidPlace->free_videos = $placeFreeVideos;
                     $paidPlace->paid_videos = $placePaidVideos;
                     $paidPlace->token_expires_at = $tokenExpiresAt;
+                    $paidPlace->paidToken = $paidToken;
     
                     // Add the current place to the placeData array
                     $placeData[] = $paidPlace;

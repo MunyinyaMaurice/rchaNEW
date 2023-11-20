@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RCHAcontroller;
 
 // use App\Models\Videos;
-use App\Models\Place;
+// use App\Models\Place;
 use App\Models\FreeVideos;
 use App\Models\PaidVideos;
 use Illuminate\Http\Request;
@@ -78,13 +78,13 @@ class VideoController extends Controller
     {
       // Validate and update video
       try {
-        $PaidVideos = PaidVideos::where('place_id',$place_id);
+        $PaidVideos = PaidVideos::where('place_id',$place_id)->first();
         if(!$PaidVideos)
        { 
         return response()->json(['message' => 'This place do not have Paid videos!']);
         }
         $validator = Validator::make($request->all(), [
-            'place_id' => 'required|exists:places,id',
+            //'place_id' => 'required|exists:places,id',
             'long_version_self_guided' => 'required|string',
             'long_eng_version_360_video' => 'required|string',
             'long_french_version_360_video' => 'required|string',
@@ -98,10 +98,10 @@ class VideoController extends Controller
         // Update paidVideos
         $PaidVideos->update([
         // 'place_id' => 'required|exists:places,id',
-        'long_version_self_guided' => 'required|string',
-        'long_eng_version_360_video' => 'required|string',
-        'long_french_version_360_video' => 'required|string',
-        'long_kiny_version_360_video' => 'required|string',
+        'long_version_self_guided' =>  $request->input('long_version_self_guided'),
+        'long_eng_version_360_video' =>  $request->input('long_eng_version_360_video'),
+        'long_french_version_360_video' => $request->input('long_french_version_360_video'),
+        'long_kiny_version_360_video' => $request->input('long_kiny_version_360_video'),
         ]);
         return response()->json([
          'message' => 'Paid Video Updated successfully',
@@ -113,7 +113,7 @@ class VideoController extends Controller
     }
     public function deletePaidVideos($place_id){
         try {
-            $PaidVideos = PaidVideos::where('place_id',$place_id);
+            $PaidVideos = PaidVideos::where('place_id',$place_id)->first();
             if(!$PaidVideos)
            { 
             return response()->json(['message' => 'This place do not have Paid videos!']);
@@ -132,13 +132,13 @@ class VideoController extends Controller
     {
       // Validate and update video
       try {
-        $FreeVideos = FreeVideos::where('place_id',$place_id);
+        $FreeVideos = FreeVideos::where('place_id',$place_id)->first();
         if(!$FreeVideos)
        { 
         return response()->json(['message' => 'This place do not have Free videos!']);
         }
         $validator = Validator::make($request->all(), [
-                'place_id' => 'required|exists:places,id',
+                // 'place_id' => 'required|exists:places,id',
                 'self_guided_short_version' => 'required|string',
                 'short_eng_version_360_video' => 'required|string',
                 'short_french_version_360_video' => 'required|string',
@@ -153,10 +153,10 @@ class VideoController extends Controller
         $FreeVideos->update([
         // 'place_id' => 'required|exists:places,id',
        
-                'self_guided_short_version' => 'required|string',
-                'short_eng_version_360_video' => 'required|string',
-                'short_french_version_360_video' => 'required|string',
-                'short_kiny_version_360_video' => 'required|string',
+                'self_guided_short_version' => $request->input('self_guided_short_version'),
+                'short_eng_version_360_video' =>  $request->input('short_eng_version_360_video'),
+                'short_french_version_360_video' =>  $request->input('short_french_version_360_video'),
+                'short_kiny_version_360_video' =>  $request->input('short_kiny_version_360_video'),
         ]);
         return response()->json([
          'message' => 'Free Video Updated successfully',
@@ -168,7 +168,7 @@ class VideoController extends Controller
     }
     public function deleteFreeVideos($place_id){
         try {
-            $FreeVideos = FreeVideos::where('place_id',$place_id);
+            $FreeVideos = FreeVideos::where('place_id',$place_id)->first();
             if(!$FreeVideos)
            { 
             return response()->json(['message' => 'This place do not have Free videos!']);
@@ -184,7 +184,7 @@ class VideoController extends Controller
     }
     public function getPaidVideosForPlace($place_id){
         try {
-            $PaidVideos = PaidVideos::where('place_id',$place_id);
+            $PaidVideos = PaidVideos::where('place_id',$place_id)->first();
             if(!$PaidVideos)
            { 
             return response()->json(['message' => 'This place do not have Paid videos!']);
@@ -199,19 +199,23 @@ class VideoController extends Controller
     }
     public function getFreeVideosForPlace($place_id){
         try {
-            $FreeVideos = FreeVideos::where('place_id',$place_id);
+            $FreeVideos = FreeVideos::where('place_id',$place_id)->first();
             if(!$FreeVideos)
            { 
             return response()->json(['message' => 'This place do not have Free videos!']);
             }
-             return response()->json([
-                'FreeVideos' => $FreeVideos],201);
-           } catch (\Exception $e) {
-               Log::error($e->getMessage());
-               return response()->json([ 'message' => 'Something happed while getting Free Videos For Place chosen!'], 501);
-           }
+            // Log::info('FreeVideos', $FreeVideos);
+            return response()->json(['FreeVideos' => $FreeVideos], 200);
+
+                
+              } catch (\Exception $e) {
+                    Log::error('Error while getting Free Videos For Place chosen: ' . $e->getMessage());
+                    return response()->json(['message' => 'Something happened while getting Free Videos For Place chosen!'], 501);
+                }
+                
 
     }
+  
 }
 
 
