@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('rate');
     
             $table->timestamps();
-            $table->unsignedBigInteger('payment_id');
-            $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade');
+            // $table->unsignedBigInteger('payment_id');
+            // $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade');
         });
 
     }

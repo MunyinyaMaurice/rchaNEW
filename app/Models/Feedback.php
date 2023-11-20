@@ -10,13 +10,13 @@ class Feedback extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'payment_id',
+        // 'payment_id',
         'comment',
         'rate',
     ];
     protected $guarded = [];
-    public function payment()
-    {
-        return $this->belongsTo(Payment::class);
-    }
+    // public function payment()
+    // {
+    //     return $this->belongsTo(Payment::class);
+    // }
 }

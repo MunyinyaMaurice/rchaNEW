@@ -159,9 +159,8 @@ Route::get('/infoBeforePayment/{place_id}', [paymentController::class,'infoBefor
 
     /** GETTING FEEDBACK FROM USER */
     Route::post('/feedback', [feedbackController::class, 'feedback']);
-    Route::get('/getFeedback/{place_id}', [feedbackController::class, 'getFeedback']);
     Route::get('/getAllFeedback', [feedbackController::class, 'getAllFeedback']);
-
+    Route::delete('/deleteFeedback/{feedback_id}', [feedbackController::class, 'deleteFeedback']);
 
 
     /**ROUTE TO SEND PAID TOKEN EMAIL TO PAID USER */
